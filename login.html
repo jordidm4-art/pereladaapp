@@ -24,10 +24,9 @@
             padding: 40px 30px;
         }
         
-        /* Área del Logo corregida para el archivo transparente adjunto */
         .logo-area {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -45,7 +44,7 @@
         
         .logo-subtitle {
             font-family: 'Georgia', serif;
-            font-size: 22px;
+            font-size: 20px;
             color: #2D2D2D;
             font-weight: 700;
             letter-spacing: 0.5px;
@@ -101,18 +100,19 @@
             opacity: 0.95;
         }
         
-        .error-message {
-            color: #EF4444;
+        .error-message, .success-message {
             font-size: 13px;
             text-align: center;
             margin-top: 12px;
             font-weight: 500;
             display: none;
+            padding: 8px;
+            border-radius: 8px;
         }
         
-        .error-message.show {
-            display: block;
-        }
+        .error-message { color: #EF4444; background: #FEF2F2; }
+        .success-message { color: #10B981; background: #ECFDF5; }
+        .show { display: block; }
         
         .links-area {
             margin-top: 35px;
@@ -126,6 +126,7 @@
             font-size: 14px;
             text-decoration: none;
             font-weight: 500;
+            cursor: pointer;
         }
         .link-primary { color: #F06B4E; }
         .link-secondary { color: #64748B; }
@@ -135,13 +136,18 @@
 
     <div class="logo-area">
         <div class="logo-img"></div>
-        <div class="logo-subtitle">PERELADA GIRONA TEAM</div>
+        <div class="logo-subtitle" id="viewTitle">PERELADA GIRONA TEAM</div>
     </div>
 
     <form id="loginForm">
+        <div class="form-group" id="nameGroup" style="display: none;">
+            <label class="form-label">Nombre Completo</label>
+            <input type="text" id="regName" class="form-input" placeholder="Ej: Jordi Deu Mora">
+        </div>
+
         <div class="form-group">
-            <label class="form-label">Usuario</label>
-            <input type="text" id="username" class="form-input" placeholder="Introduce tu usuario" required autocomplete="username">
+            <label class="form-label" id="emailLabel">Correo Electrónico Corporativo</label>
+            <input type="email" id="username" class="form-input" placeholder="usuario@pereladachivite.com" required autocomplete="username">
         </div>
         
         <div class="form-group">
@@ -149,42 +155,113 @@
             <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
         </div>
         
-        <button type="submit" class="btn-submit">Iniciar Sesión</button>
-        <div id="errorMsg" class="error-message">Usuario o contraseña incorrectos</div>
+        <button type="submit" class="btn-submit" id="mainBtn">Iniciar Sesión</button>
+        <div id="errorMsg" class="error-message">Correo o contraseña incorrectos, Señor.</div>
+        <div id="successMsg" class="success-message">¡Cuenta creada con éxito!</div>
     </form>
 
     <div class="links-area">
-        <a href="#" class="link link-primary">¿Has olvidado tu contraseña?</a>
-        <a href="#" class="link link-secondary">Crear cuenta</a>
+        <span class="link link-primary" id="toggleModeBtn" onclick="switchMode()">Crear cuenta nueva</span>
+        <a href="mailto:jordi.deu@pereladachivite.com?subject=Recuperar%20Contraseña%20App" class="link link-secondary">¿Has olvidado tu contraseña?</a>
     </div>
     
     <script>
-        const users = [
-            { username: 'ana', password: '1234', name: 'Ana' },
-            { username: 'maria', password: '1234', name: 'María' },
-            { username: 'juan', password: '1234', name: 'Juan' },
-            { username: 'carlos', password: '1234', name: 'Carlos' },
-            { username: 'laura', password: '1234', name: 'Laura' },
-            { username: 'pedro', password: '1234', name: 'Pedro' }
-        ];
+        // MODO ACTUAL: true = Iniciar Sesión, false = Registrarse
+        let isLoginMode = true;
+
+        // Base de datos oficial de la App con su cuenta maestra de Administrador instalada de fábrica
+        let usersDB = JSON.parse(localStorage.getItem('perelada_users_database'));
+        if (!usersDB) {
+            usersDB = [
+                { 
+                    email: 'jordi.deu@pereladachivite.com', 
+                    password: '1234', 
+                    name: 'Jordi Deu Mora', 
+                    role: 'admin'  // Su rol Maestro de Control Total
+                }
+            ];
+            localStorage.setItem('perelada_users_database', JSON.stringify(usersDB));
+        }
         
+        function switchMode() {
+            isLoginMode = !isLoginMode;
+            const viewTitle = document.getElementById('viewTitle');
+            const nameGroup = document.getElementById('nameGroup');
+            const mainBtn = document.getElementById('mainBtn');
+            const toggleModeBtn = document.getElementById('toggleModeBtn');
+            const regName = document.getElementById('regName');
+
+            if (isLoginMode) {
+                viewTitle.textContent = "PERELADA GIRONA TEAM";
+                nameGroup.style.display = "none";
+                regName.required = false;
+                mainBtn.textContent = "Iniciar Sesión";
+                toggleModeBtn.textContent = "Crear cuenta nueva";
+            } else {
+                viewTitle.textContent = "REGISTRO DE USUARIO";
+                nameGroup.style.display = "block";
+                regName.required = true;
+                mainBtn.textContent = "Registrar mi Cuenta";
+                toggleModeBtn.textContent = "Volver al Login";
+            }
+        }
+
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value.toLowerCase().trim();
-            const password = document.getElementById('password').value;
+            const emailInput = document.getElementById('username').value.toLowerCase().trim();
+            const passwordInput = document.getElementById('password').value;
+            const regNameInput = document.getElementById('regName').value.trim();
+            
             const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
             
-            const user = users.find(u => u.username === username && u.password === password);
-            
-            if (user) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                window.location.href = 'index.html';
+            if (isLoginMode) {
+                // LOGICA DE INICIO DE SESIÓN
+                const user = usersDB.find(u => u.email === emailInput && u.password === passwordInput);
+                
+                if (user) {
+                    // Guardamos el usuario activo en la sesión del teléfono
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    
+                    // Si el usuario tiene ficha de kilómetros asignada de antes, la respetamos
+                    if (!localStorage.getItem('perelada_active_comercial_sheet')) {
+                        localStorage.setItem('perelada_active_comercial_sheet', user.name);
+                    }
+                    
+                    window.location.href = 'index.html';
+                } else {
+                    errorMsg.textContent = "Correo o contraseña incorrectos, Señor.";
+                    errorMsg.classList.add('show');
+                    setTimeout(() => errorMsg.classList.remove('show'), 3000);
+                }
             } else {
-                errorMsg.classList.add('show');
+                // LÓGICA DE CREACIÓN DE CUENTA (Para sus comerciales)
+                const userExists = usersDB.some(u => u.email === emailInput);
+                
+                if (userExists) {
+                    errorMsg.textContent = "Este correo ya está registrado en el sistema.";
+                    errorMsg.classList.add('show');
+                    setTimeout(() => errorMsg.classList.remove('show'), 3000);
+                    return;
+                }
+
+                // Añadimos el nuevo trabajador a la base de datos local
+                const newWorker = {
+                    email: emailInput,
+                    password: passwordInput,
+                    name: regNameInput,
+                    role: 'worker' // Rol estándar para comerciales
+                };
+                
+                usersDB.push(newWorker);
+                localStorage.setItem('perelada_users_database', JSON.stringify(usersDB));
+                
+                successMsg.classList.add('show');
                 setTimeout(() => {
-                    errorMsg.classList.remove('show');
-                }, 3000);
+                    successMsg.classList.remove('show');
+                    switchMode(); // Volvemos al Login para que entre de forma segura
+                }, 2000);
             }
         });
     </script>
