@@ -3,267 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Perelada Girona Team - Login</title>
+    <title>Perelada Comercial - Inicio</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #FFFFFF;
+            background: #F0F0F0;
             min-height: 100vh;
             max-width: 430px;
             margin: 0 auto;
+            padding: 20px;
+        }
+        .header-flex {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 40px 30px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            padding-top: 10px;
         }
+        .welcome-section h1 { font-size: 26px; color: #2D2D2D; font-weight: 800; }
+        .welcome-section p { font-size: 14px; color: #64748B; margin-top: 4px; font-weight: 500; }
         
-        .logo-area {
-            text-align: center;
-            margin-bottom: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .logo-img {
-            width: 280px;
-            height: 120px;
-            margin-bottom: 15px;
-            background-image: url('perelada_logo_transparent.png');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-        
-        .logo-subtitle {
-            font-family: 'Georgia', serif;
-            font-size: 20px;
-            color: #2D2D2D;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 13px;
-            color: #64748B;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .form-input {
-            width: 100%;
-            height: 50px;
-            background: #F8FAFC;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 0 16px;
-            font-size: 15px;
-            color: #1E293B;
-            outline: none;
-            transition: all 0.2s;
-        }
-        
-        .form-input:focus {
-            border-color: #F06B4E;
-            background: #FFFFFF;
-        }
-        
-        .btn-submit {
-            width: 100%;
-            height: 52px;
-            background: #F06B4E;
-            color: white;
+        /* Botón elegante para salir */
+        .logout-btn {
+            background: #E2E8F0;
+            color: #475569;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(240, 107, 78, 0.2);
-            transition: all 0.2s;
         }
-        
-        .btn-submit:active {
-            transform: scale(0.98);
-            opacity: 0.95;
+
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .menu-card {
+            background: white; border-radius: 18px; padding: 18px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            height: 140px; text-decoration: none; box-shadow: 0 4px 6px rgba(0,0,0,0.01);
+            transition: transform 0.2s;
         }
-        
-        .error-message, .success-message {
-            font-size: 13px;
-            text-align: center;
-            margin-top: 12px;
-            font-weight: 500;
-            display: none;
-            padding: 8px;
-            border-radius: 8px;
-        }
-        
-        .error-message { color: #EF4444; background: #FEF2F2; }
-        .success-message { color: #10B981; background: #ECFDF5; }
-        .show { display: block; }
-        
-        .links-area {
-            margin-top: 35px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .link {
-            font-size: 14px;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .link-primary { color: #F06B4E; }
-        .link-secondary { color: #64748B; }
+        .menu-card:active { transform: scale(0.96); }
+        .card-icon { font-size: 32px; }
+        .card-title { font-size: 15px; font-weight: 700; color: #2D2D2D; margin-top: 12px; }
+        .card-desc { font-size: 11px; color: #94A3B8; font-weight: 500; margin-top: 2px; }
+
+        /* Tarjeta especial ancha para los Kilómetros */
+        .menu-card.wide { grid-column: span 2; height: 110px; flex-direction: row; align-items: center; gap: 16px; }
+        .wide .text-block { display: flex; flex-direction: column; justify-content: center; }
     </style>
+    <script>
+        // SEGURIDAD: Si no hay un usuario real logueado en la memoria del móvil, le echa al login.html
+        if (!localStorage.getItem('currentUser')) {
+            window.location.href = 'login.html';
+        }
+    </script>
 </head>
 <body>
 
-    <div class="logo-area">
-        <div class="logo-img"></div>
-        <div class="logo-subtitle" id="viewTitle">PERELADA GIRONA TEAM</div>
+    <div class="header-flex">
+        <div class="welcome-section">
+            <h1>Grup Perelada</h1>
+            <p id="userGreeting">Portal Comercial</p>
+        </div>
+        <button class="logout-btn" onclick="cerrarSesion()">🚪 Salir</button>
     </div>
 
-    <form id="loginForm">
-        <div class="form-group" id="nameGroup" style="display: none;">
-            <label class="form-label">Nombre Completo</label>
-            <input type="text" id="regName" class="form-input" placeholder="Ej: Jordi Deu Mora">
-        </div>
+    <div class="menu-grid">
+        <a href="kilometros.html" class="menu-card wide" style="border-left: 5px solid #F06B4E;">
+            <div class="card-icon">🚗</div>
+            <div class="text-block">
+                <div class="card-title" style="margin-top:0;">Control de Kilómetros</div>
+                <div class="card-desc">Registra tus KMs de Entrada y Salida directamente en tu ficha de SharePoint.</div>
+            </div>
+        </a>
 
-        <div class="form-group">
-            <label class="form-label" id="emailLabel">Correo Electrónico Corporativo</label>
-            <input type="email" id="username" class="form-input" placeholder="usuario@pereladachivite.com" required autocomplete="username">
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Contraseña</label>
-            <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
-        </div>
-        
-        <button type="submit" class="btn-submit" id="mainBtn">Iniciar Sesión</button>
-        <div id="errorMsg" class="error-message">Correo o contraseña incorrectos, Señor.</div>
-        <div id="successMsg" class="success-message">¡Cuenta creada con éxito!</div>
-    </form>
+        <a href="sos_contactos.html" class="menu-card" style="border-left: 4px solid #3B82F6;">
+            <div class="card-icon">📞</div>
+            <div>
+                <div class="card-title">SOS Contactos</div>
+                <div class="card-desc">Buscador inteligente de extensiones de la empresa.</div>
+            </div>
+        </a>
 
-    <div class="links-area">
-        <span class="link link-primary" id="toggleModeBtn" onclick="switchMode()">Crear cuenta nueva</span>
-        <a href="mailto:jordi.deu@pereladachivite.com?subject=Recuperar%20Contraseña%20App" class="link link-secondary">¿Has olvidado tu contraseña?</a>
+        <a href="promociones.html" class="menu-card" style="border-left: 4px solid #10B981;">
+            <div class="card-icon">🏷️</div>
+            <div>
+                <div class="card-title">Promociones</div>
+                <div class="card-desc">Consulta bases y ofertas activas en tiempo real.</div>
+            </div>
+        </a>
     </div>
-    
+
     <script>
-        // MODO ACTUAL: true = Iniciar Sesión, false = Registrarse
-        let isLoginMode = true;
-
-        // Base de datos oficial de la App con su cuenta maestra de Administrador instalada de fábrica
-        let usersDB = JSON.parse(localStorage.getItem('perelada_users_database'));
-        if (!usersDB) {
-            usersDB = [
-                { 
-                    email: 'jordi.deu@pereladachivite.com', 
-                    password: '1234', 
-                    name: 'Jordi Deu Mora', 
-                    role: 'admin'  // Su rol Maestro de Control Total
-                }
-            ];
-            localStorage.setItem('perelada_users_database', JSON.stringify(usersDB));
-        }
-        
-        function switchMode() {
-            isLoginMode = !isLoginMode;
-            const viewTitle = document.getElementById('viewTitle');
-            const nameGroup = document.getElementById('nameGroup');
-            const mainBtn = document.getElementById('mainBtn');
-            const toggleModeBtn = document.getElementById('toggleModeBtn');
-            const regName = document.getElementById('regName');
-
-            if (isLoginMode) {
-                viewTitle.textContent = "PERELADA GIRONA TEAM";
-                nameGroup.style.display = "none";
-                regName.required = false;
-                mainBtn.textContent = "Iniciar Sesión";
-                toggleModeBtn.textContent = "Crear cuenta nueva";
-            } else {
-                viewTitle.textContent = "REGISTRO DE USUARIO";
-                nameGroup.style.display = "block";
-                regName.required = true;
-                mainBtn.textContent = "Registrar mi Cuenta";
-                toggleModeBtn.textContent = "Volver al Login";
-            }
+        // Personaliza el saludo con el nombre real del usuario logueado
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser) {
+            document.getElementById('userGreeting').textContent = "Hola, " + currentUser.name;
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const emailInput = document.getElementById('username').value.toLowerCase().trim();
-            const passwordInput = document.getElementById('password').value;
-            const regNameInput = document.getElementById('regName').value.trim();
-            
-            const errorMsg = document.getElementById('errorMsg');
-            const successMsg = document.getElementById('successMsg');
-            
-            if (isLoginMode) {
-                // LOGICA DE INICIO DE SESIÓN
-                const user = usersDB.find(u => u.email === emailInput && u.password === passwordInput);
-                
-                if (user) {
-                    // Guardamos el usuario activo en la sesión del teléfono
-                    localStorage.setItem('currentUser', JSON.stringify(user));
-                    
-                    // Si el usuario tiene ficha de kilómetros asignada de antes, la respetamos
-                    if (!localStorage.getItem('perelada_active_comercial_sheet')) {
-                        localStorage.setItem('perelada_active_comercial_sheet', user.name);
-                    }
-                    
-                    window.location.href = 'index.html';
-                } else {
-                    errorMsg.textContent = "Correo o contraseña incorrectos, Señor.";
-                    errorMsg.classList.add('show');
-                    setTimeout(() => errorMsg.classList.remove('show'), 3000);
-                }
-            } else {
-                // LÓGICA DE CREACIÓN DE CUENTA (Para sus comerciales)
-                const userExists = usersDB.some(u => u.email === emailInput);
-                
-                if (userExists) {
-                    errorMsg.textContent = "Este correo ya está registrado en el sistema.";
-                    errorMsg.classList.add('show');
-                    setTimeout(() => errorMsg.classList.remove('show'), 3000);
-                    return;
-                }
-
-                // Añadimos el nuevo trabajador a la base de datos local
-                const newWorker = {
-                    email: emailInput,
-                    password: passwordInput,
-                    name: regNameInput,
-                    role: 'worker' // Rol estándar para comerciales
-                };
-                
-                usersDB.push(newWorker);
-                localStorage.setItem('perelada_users_database', JSON.stringify(usersDB));
-                
-                successMsg.classList.add('show');
-                setTimeout(() => {
-                    successMsg.classList.remove('show');
-                    switchMode(); // Volvemos al Login para que entre de forma segura
-                }, 2000);
-            }
-        });
+        function cerrarSesion() {
+            // Borra el usuario activo del teléfono y vuelve a la pantalla de login
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 </html>
