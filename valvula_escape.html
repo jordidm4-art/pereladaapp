@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - Válvula de Escape</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1A1A1A;
+            color: #FFFFFF;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        
+        .header h1 { font-size: 24px; color: #FFFFFF; font-weight: 800; text-align: center; margin-top: 10px; margin-bottom: 20px; }
+
+        .phase-panel { display: none; }
+        .phase-panel.active { display: flex; flex-direction: column; animation: fadeIn 0.4s ease forwards; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* FASE 1 */
+        .rage-box {
+            background: #2D2D2D; border-radius: 16px; padding: 16px; border: 2px solid #EF4444;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15); margin-bottom: 16px;
+        }
+        .rage-label { font-size: 14px; font-weight: 700; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; display: block; text-align: center;}
+        .rage-textarea {
+            width: 100%; background: #1E1E1E; border: 1px solid #444; border-radius: 12px;
+            padding: 14px; font-size: 15px; color: #FF6B6B; outline: none; height: 140px;
+            resize: none; font-family: inherit; line-height: 1.4; font-weight: 600;
+        }
+        .voice-rage-btn {
+            background: #EF4444; color: white; border: none; border-radius: 10px;
+            padding: 12px; font-weight: 700; font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;
+            width: 100%; transition: all 0.2s;
+        }
+        .voice-rage-btn.listening { background: #B91C1C; animation: vibrate 0.1s linear infinite; }
+
+        @keyframes vibrate { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
+
+        .destroy-btn {
+            width: 100%; height: 50px; background: linear-gradient(135deg, #EF4444, #B91C1C);
+            color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 800;
+            text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            margin-top: 10px;
+        }
+
+        /* FASE 2 */
+        .calm-container { text-align: center; padding: 30px 10px; }
+        .calm-instruction { font-size: 20px; font-weight: 700; color: #60A5FA; margin-bottom: 40px; min-height: 30px; }
+        .breath-circle {
+            width: 140px; height: 140px; background: rgba(96, 165, 250, 0.2);
+            border: 3px solid #60A5FA; border-radius: 50%; margin: 0 auto 40px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700; color: #60A5FA;
+            transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .breath-circle.inhale { transform: scale(1.6); background: rgba(96, 165, 250, 0.4); }
+        .breath-circle.hold { background: rgba(139, 92, 246, 0.4); border-color: #8B5CF6; color: #8B5CF6; }
+        .breath-circle.exhale { transform: scale(1); background: rgba(96, 165, 250, 0.1); }
+        .breath-counter { font-size: 14px; color: #94A3B8; font-weight: 500; }
+
+        /* FASE 3 */
+        .success-container { text-align: center; padding: 10px; }
+        .success-icon { font-size: 50px; margin-bottom: 10px; animation: bounce 1s infinite alternate; }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+        
+        .success-title { font-size: 22px; font-weight: 800; color: #10B981; margin-bottom: 10px; }
+        .motivational-phrase {
+            background: #F8FAFC; color: #1E293B; padding: 16px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #10B981;
+            text-align: left;
+        }
+
+        /* Selector de Música Premium */
+        .music-box {
+            background: white; border-radius: 12px; padding: 14px; margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left;
+        }
+        .music-title { font-size: 12px; font-weight: 700; color: #F06B4E; text-transform: uppercase; margin-bottom: 8px; }
+        .playlist { display: flex; flex-direction: column; gap: 8px; }
+        .track-item {
+            background: #F1F5F9; color: #334155; padding: 10px 12px; border-radius: 8px;
+            font-size: 13px; font-weight: 600; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; transition: all 0.2s;
+        }
+        .track-item.playing { background: #F06B4E; color: white; }
+
+        .restart-btn {
+            background: #2D2D2D; color: white; font-weight: 700; border: none;
+            padding: 14px 28px; border-radius: 10px; font-size: 14px; cursor: pointer; width: 100%;
+        }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px;
+            background: #2D2D2D; padding: 10px 30px 24px; display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 1000;
+        }
+        .nav-item { font-size: 22px; cursor: pointer; color: #FFFFFF; text-decoration: none; opacity: 0.4; }
+        .nav-item.active { opacity: 1; color: #F06B4E; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Válvula de Escape</h1>
+    </div>
+
+    <div class="phase-panel active" id="phase1">
+        <div class="rage-box">
+            <label class="rage-label">... Zona de Descarga Absoluta ...</label>
+            <textarea id="rageText" class="rage-textarea" placeholder="Escribe aquí los insultos, las quejas del cliente y todo lo que te quema por dentro..."></textarea>
+            <button class="voice-rage-btn" id="voiceRageBtn" onclick="activateVoiceRage()">
+                <span>🎤 Activar Micrófono y Gritar</span>
+            </button>
+        </div>
+        <button class="destroy-btn" onclick="destroyRage()">💥 Eliminar y Quemar esta Basura 💥</button>
+    </div>
+
+    <div class="phase-panel" id="phase2">
+        <div class="calm-container">
+            <div class="calm-instruction" id="breathText">Prepárate para recuperar el control...</div>
+            <div class="breath-circle" id="bCircle">Centrar mente</div>
+            <div class="breath-counter" id="cycleCounter">Ciclo 1 de 3</div>
+        </div>
+    </div>
+
+    <div class="phase-panel" id="phase3">
+        <div class="success-container">
+            <div class="success-icon">🚀</div>
+            <div class="success-title">Mente Limpia. Control Absoluto.</div>
+            <div class="motivational-phrase" id="quoteBox"></div>
+            
+            <div class="music-box">
+                <div class="music-title">⚡ Selecciona tu Himno de Energía:</div>
+                <div class="playlist">
+                    <div class="track-item" id="t1" onclick="playTrack('tiger.mp3', 't1')"><span>1. Eye of the Tiger</span> <span>▶️</span></div>
+                    <div class="track-item" id="t2" onclick="playTrack('queen.mp3', 't2')"><span>2. Don't Stop Me Now</span> <span>▶️</span></div>
+                    <div class="track-item" id="t3" onclick="playTrack('peppers.mp3', 't3')"><span>3. Can't Stop</span> <span>▶️</span></div>
+                    <div class="track-item" id="t4" onclick="playTrack('eminem.mp3', 't4')"><span>4. Lose Yourself</span> <span>▶️</span></div>
+                </div>
+            </div>
+
+            <button class="restart-btn" onclick="resetVavlula()">Volver al Trabajo como un Jefe</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">&#127968;</div>
+        <div class="nav-item" onclick="goTo('calendario')">&#128197;</div>
+        <div class="nav-item" onclick="goTo('notas')">&#128221;</div>
+        <div class="nav-item" onclick="goTo('tarifas')">&#127991;</div>
+        <div class="nav-item" onclick="goTo('ajustes')">&#9881;</div>
+    </div>
+
+    <script>
+        var phrases = [
+            "Tú eres un profesional de categoría premium. Ese cliente es un personaje transitorio. No dejes que un incompetente controle tus emociones. ¡A por el siguiente!",
+            "Esa mala energía ya se ha desintegrado. El cliente se queda con su amargura, pero tú te quedas con tus comisiones y tu talento. Sonríe y demuestra quién manda.",
+            "Recuerda: El cliente no siempre tiene la razón, pero nosotros siempre tenemos el control de la situación. Respira hondo, ponte tu mejor traje mental y cierra la próxima venta."
+        ];
+
+        // Objeto global de Audio Nativo de la App
+        var currentAudio = null;
+
+        function activateVoiceRage() {
+            var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("Su dispositivo no soporta entrada de voz."); return; }
+            var recognition = new SpeechRecognition();
+            var btn = document.getElementById("voiceRageBtn");
+            recognition.lang = 'es-ES';
+            recognition.onstart = function() { btn.classList.add("listening"); btn.innerHTML = "🛑 ESCUCHANDO... ¡SUÉLTALO!"; };
+            recognition.onend = function() { btn.classList.remove("listening"); btn.innerHTML = "🎤 Activar Micrófono y Gritar"; };
+            recognition.onresult = function(event) { document.getElementById("rageText").value += " " + event.results[0][0].transcript.toUpperCase() + "!!!"; };
+            recognition.start();
+        }
+
+        function destroyRage() {
+            var text = document.getElementById("rageText").value.trim();
+            if (!text) { alert("Suelte sus frustraciones primero."); return; }
+            document.getElementById("rageText").value = "";
+            document.getElementById("phase1").classList.remove("active");
+            document.getElementById("phase2").classList.add("active");
+            document.body.style.background = "#0F172A";
+            startBreathingExercise();
+        }
+
+        function startBreathingExercise() {
+            var txt = document.getElementById("breathText");
+            var circle = document.getElementById("bCircle");
+            var counter = document.getElementById("cycleCounter");
+            var cycle = 1;
+
+            function runCycle() {
+                if (cycle > 3) { setTimeout(showSuccessPhase, 1000); return; }
+                counter.textContent = "Ciclo " + cycle + " de 3";
+                txt.textContent = "Inhala profundamente..."; txt.style.color = "#60A5FA";
+                circle.className = "breath-circle inhale"; circle.textContent = "INHAlAR";
+                setTimeout(function() {
+                    txt.textContent = "Mantén el aire..."; txt.style.color = "#8B5CF6";
+                    circle.className = "breath-circle hold"; circle.textContent = "MANTENER";
+                    setTimeout(function() {
+                        txt.textContent = "Exhala lento y libera la tensión..."; txt.style.color = "#34D399";
+                        circle.className = "breath-circle exhale"; circle.textContent = "EXHALAR";
+                        setTimeout(function() { cycle++; runCycle(); }, 4000);
+                    }, 4000);
+                }, 4000);
+            }
+            setTimeout(runCycle, 1000);
+        }
+
+        function showSuccessPhase() {
+            document.getElementById("phase2").classList.remove("active");
+            document.getElementById("phase3").classList.add("active");
+            document.body.style.background = "#F0F0F0";
+            document.body.style.color = "#2D2D2D";
+            document.querySelector(".header h1").style.color = "#2D2D2D";
+            document.getElementById("quoteBox").textContent = phrases[Math.floor(Math.random() * phrases.length)];
+        }
+
+        // Lógica del reproductor nativo
+        function playTrack(fileName, elementId) {
+            // Si hay una canción sonando, la detenemos
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            // Quitar estilos de "reproduciendo" a todas las canciones
+            var items = document.querySelectorAll('.track-item');
+            items.forEach(item => item.classList.remove('playing'));
+
+            // Apuntar a la carpeta local donde guardará los archivos mp3, Señor
+            currentAudio = new Audio('audio/' + fileName);
+            currentAudio.play();
+
+            // Marcar visualmente la canción activa
+            document.getElementById(elementId).classList.add('playing');
+        }
+
+        function resetVavlula() {
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            document.getElementById("phase3").classList.remove("active");
+            document.getElementById("phase1").classList.add("active");
+            document.body.style.background = "#1A1A1A";
+            document.body.style.color = "#FFFFFF";
+            document.querySelector(".header h1").style.color = "#FFFFFF";
+        }
+
+        function goTo(page) {
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            var routes = {
+                menu: "index.html",
+                calendario: "calendario.html",
+                kilometros: "kilometros.html",
+                tarifas: "tarifas.html",
+                documentos: "documentos.html",
+                promociones: "promociones.html",
+                notas: "notas.html",
+                sos_contactos: "sos_contactos.html",
+                valvula_escape: "valvula_escape.html",
+                relax_juegos: "relax_juegos.html",
+                enlaces: "enlaces.html",
+                ajustes: "ajustes.html",
+                login: "login.html"
+            };
+            if (routes[page]) window.location.href = routes[page];
+        }
+            if (page === 'menu') window.location.href = 'index.html';
+            else if (page === 'calendario') window.location.href = 'calendario.html';
+            else if (page === 'notas') window.location.href = 'notas.html';
+            else if (page === 'tarifas') window.location.href = 'tarifas.html';
+            else if (page === 'ajustes') window.location.href = 'ajustes.html';
+        }
+    </script>
+</body>
+</html>

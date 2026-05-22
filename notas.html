@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - Notas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F0F0F0;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-top: 8px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #2D2D2D;
+            font-weight: 700;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+            margin-left: 8px;
+        }
+        .search-bar input::placeholder { color: #999; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 3px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            background: transparent;
+            color: #999;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .tab-btn.active {
+            background: #F06B4E;
+            color: white;
+        }
+
+        /* Filter chips */
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .filter-chip {
+            background: white;
+            color: #666;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            border: 1.5px solid #E0E0E0;
+            transition: all 0.2s;
+        }
+        .filter-chip.active {
+            background: #F06B4E;
+            color: white;
+            border-color: #F06B4E;
+        }
+
+        /* Notes list */
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .note-card {
+            background: white;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .note-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .note-card.pinned { border-left: 4px solid #F06B4E; }
+        .note-card.task-done { opacity: 0.6; }
+        .note-card.task-done .note-title { text-decoration: line-through; color: #999; }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+        .note-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2D2D2D;
+            flex: 1;
+            margin-right: 8px;
+        }
+        .note-pin {
+            font-size: 16px;
+            color: #F06B4E;
+        }
+
+        .note-preview {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Subitems view in task preview */
+        .task-subitems-preview {
+            margin-top: 6px;
+            margin-bottom: 10px;
+            background: #F9F9F9;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #555;
+        }
+        .subitem-preview-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+        .subitem-preview-row:last-child { margin-bottom: 0; }
+
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .note-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .note-author {
+            font-size: 11px;
+            color: #999;
+            font-weight: 600;
+        }
+        .note-date {
+            font-size: 11px;
+            color: #BBB;
+        }
+        .note-tags {
+            display: flex;
+            gap: 4px;
+        }
+        .note-tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .tag-urgente { background: #FFEBEE; color: #C62828; }
+        .tag-info { background: #E3F2FD; color: #1565C0; }
+        .tag-idea { background: #E8F5E9; color: #2E7D32; }
+        .tag-reunion { background: #FFF3E0; color: #E65100; }
+        .tag-personal { background: #F3E5F5; color: #7B1FA2; }
+
+        /* Task checkbox */
+        .task-check {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #F06B4E;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-right: 10px;
+            font-size: 13px;
+            color: white;
+            transition: all 0.2s;
+        }
+        .task-check.checked {
+            background: #F06B4E;
+        }
+
+        .note-card.task-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 14px;
+        }
+        .note-card.task-item .note-content {
+            flex: 1;
+        }
+        .note-card.task-item .note-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .note-card.task-item .note-preview {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        /* Actions block inside card */
+        .card-actions-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #EAEAEA;
+        }
+        .action-icon-btn {
+            background: none;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-icon-btn:hover { opacity: 1; }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        .empty-state-text {
+            font-size: 14px;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #F06B4E;
+            color: white;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(240,107,78,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: transform 0.2s;
+        }
+        .fab:active { transform: scale(0.95); }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-sheet {
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px 30px;
+            width: 100%;
+            max-width: 430px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .modal-sheet h2 {
+            font-size: 20px;
+            color: #2D2D2D;
+            margin-bottom: 20px;
+        }
+        .modal-input, .modal-textarea, .modal-select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            font-size: 15px;
+            color: #2D2D2D;
+            font-family: inherit;
+        }
+        .modal-input:focus, .modal-textarea:focus, .modal-select:focus {
+            outline: none;
+            border-color: #F06B4E;
+        }
+        .modal-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .modal-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .modal-row > div { flex: 1; }
+        .modal-row label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        /* Dynamic Excel-like list style */
+        .subitems-section {
+            margin-bottom: 14px;
+            background: #F9F9F9;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px dashed #DDD;
+        }
+        .subitems-section h3 {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .subitem-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+            align-items: center;
+        }
+        .subitem-input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #CCC;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .btn-remove-subitem {
+            background: transparent;
+            border: none;
+            color: #C62828;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .tag-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .tag-option {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tag-option.selected {
+            border-color: #333;
+            transform: scale(1.05);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #F06B4E;
+            color: white;
+        }
+        .btn-secondary {
+            background: #F5F5F5;
+            color: #666;
+        }
+        .btn-danger {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            padding: 10px 30px 24px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 50;
+        }
+        .nav-item {
+            font-size: 22px;
+            opacity: 0.5;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item.active {
+            opacity: 1;
+            color: #F06B4E;
+        }
+
+        /* Section title */
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            margin-top: 4px;
+        }
+
+        /* Priority indicator */
+        .priority-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+        .priority-alta { background: #EF4444; }
+        .priority-media { background: #F59E0B; }
+        .priority-baja { background: #10B981; }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="header">
+        <h1>Notas</h1>
+    </div>
+
+    <div class="search-bar">
+        <span style="color:#999;font-size:14px;">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar notas..." oninput="filterNotes()">
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('compartidas')" id="tabCompartidas">Compartidas</button>
+        <button class="tab-btn" onclick="switchTab('personales')" id="tabPersonales">Personales</button>
+        <button class="tab-btn" onclick="switchTab('tareas')" id="tabTareas">Tareas</button>
+    </div>
+
+    <div class="filter-row" id="filterRow">
+        <div class="filter-chip active" onclick="filterByTag('todas')">Todas</div>
+        <div class="filter-chip" onclick="filterByTag('urgente')">Urgente</div>
+        <div class="filter-chip" onclick="filterByTag('reunion')">Reunion</div>
+        <div class="filter-chip" onclick="filterByTag('idea')">Idea</div>
+        <div class="filter-chip" onclick="filterByTag('info')">Info</div>
+    </div>
+
+    <div id="notesContainer"></div>
+
+    <button class="fab" onclick="openModal()">+</button>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-sheet">
+            <h2 id="modalTitle">Nueva nota</h2>
+
+            <input type="text" class="modal-input" id="noteTitle" placeholder="Titulo">
+            <textarea class="modal-textarea" id="noteContent" placeholder="Escribe tu nota aqui..."></textarea>
+
+            <div class="modal-row">
+                <div>
+                    <label>Tipo</label>
+                    <select class="modal-select" id="noteType" onchange="onTypeChange()">
+                        <option value="compartida">Compartida</option>
+                        <option value="personal">Personal</option>
+                        <option value="tarea">Tarea</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Prioridad</label>
+                    <select class="modal-select" id="notePriority">
+                        <option value="baja">Baja</option>
+                        <option value="media" selected>Media</option>
+                        <option value="alta">Alta</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="subitemsWrapper" class="subitems-section" style="display: none;">
+                <h3>Sub-filas de la lista (Estilo Tabla)</h3>
+                <div id="subitemsContainer"></div>
+                <button type="button" class="btn btn-secondary" style="padding: 6px; font-size: 12px; margin-top: 6px;" onclick="addSubitemField('')">+ Añadir Fila</button>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <label style="font-size:12px;color:#666;font-weight:600;">Etiqueta</label>
+                <div class="tag-selector" id="tagSelector">
+                    <div class="tag-option tag-urgente" data-tag="urgente" onclick="selectTag(this)">Urgente</div>
+                    <div class="tag-option tag-info" data-tag="info" onclick="selectTag(this)">Info</div>
+                    <div class="tag-option tag-idea" data-tag="idea" onclick="selectTag(this)">Idea</div>
+                    <div class="tag-option tag-reunion" data-tag="reunion" onclick="selectTag(this)">Reunion</div>
+                    <div class="tag-option tag-personal" data-tag="personal" onclick="selectTag(this)">Personal</div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveNote()">Guardar</button>
+            </div>
+            
+            <div id="modalDeleteWrapper" style="margin-top: 10px; display: none;">
+                <button class="btn btn-danger" style="width: 100%;" onclick="deleteCurrentNote()">Eliminar Nota</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">🏠</div>
+        <div class="nav-item" onclick="goTo('calendario')">📅</div>
+        <div class="nav-item active">📝</div>
+        <div class="nav-item" onclick="goTo('ajustes')">⚙️</div>
+    </div>
+
+    <script>
+        // ========== STATE ==========
+        var currentTab = 'compartidas';
+        var currentFilter = 'todas';
+        var selectedTag = '';
+        var editingId = null;
+
+        var currentUser = { name: 'Ana', email: 'ana@isumi.com' };
+
+        // Demo data (added 'subitems' field support)
+        var notes = [
+            {
+                id: 1, title: 'Reunion semanal equipo', 
+                content: 'Puntos a tratar: revision de objetivos del mes, planificacion de vacaciones, nuevo proyecto cliente XYZ. Preparar presentacion para el viernes.',
+                type: 'compartida', tag: 'reunion', priority: 'alta',
+                author: 'Carlos', date: '2026-05-14', pinned: true,
+                done: false, subitems: []
+            },
+            {
+                id: 2, title: 'Ideas para evento de verano',
+                content: 'Barbacoa en la playa, torneo de padel, cena en restaurante de Perelada. Consultar disponibilidad y presupuesto.',
+                type: 'compartida', tag: 'idea', priority: 'media',
+                author: 'Laura', date: '2026-05-13', pinned: false,
+                done: false, subitems: []
+            },
+            {
+                id: 3, title: 'Urgente: Fallo servidor',
+                content: 'El servidor principal presenta lentitud desde ayer. Contactar con soporte tecnico urgentemente.',
+                type: 'compartida', tag: 'urgente', priority: 'alta',
+                author: 'Juan', date: '2026-05-14', pinned: true,
+                done: false, subitems: []
+            },
+            {
+                id: 4, title: 'Contacto proveedor nuevo',
+                content: 'Telefono: 972-123-456. Email: proveedor@ejemplo.com. Oferta especial para materiales de oficina.',
+                type: 'compartida', tag: 'info', priority: 'baja',
+                author: 'Maria', date: '2026-05-12', pinned: false,
+                done: false, subitems: []
+            },
+            {
+                id: 5, title: 'Recordatorio personal: dentista',
+                content: 'Cita el 20 de mayo a las 16:00. Clinica Dental Girona, Calle Mayor 15.',
+                type: 'personal', tag: 'personal', priority: 'media',
+                author: 'Ana', date: '2026-05-10', pinned: false,
+                done: false, subitems: []
+            },
+            {
+                id: 6, title: 'Lista de la compra',
+                content: 'Leche, pan, huevos, fruta, cafe, papel higienico. No olvidar las galletas para la oficina.',
+                type: 'personal', tag: 'personal', priority: 'baja',
+                author: 'Ana', date: '2026-05-14', pinned: false,
+                done: false, subitems: []
+            },
+            {
+                id: 7, title: 'Preparar informe mensual',
+                content: 'Recopilar datos de ventas, estadisticas de clientes y balance del mes. Entregar antes del 25.',
+                type: 'tarea', tag: 'urgente', priority: 'alta',
+                author: 'Ana', date: '2026-05-14', pinned: true,
+                done: false, subitems: []
+            },
+            {
+                id: 8, title: 'Actualizar web corporativa',
+                content: 'Revisar seccion de contacto, anadir nuevos proyectos al portfolio, optimizar imagenes.',
+                type: 'tarea', tag: 'idea', priority: 'media',
+                author: 'Ana', date: '2026-05-11', pinned: false,
+                done: true, subitems: []
+            },
+            {
+                id: 9, title: 'Llamar a cliente Rodriguez',
+                content: 'Confirmar reunion para la semana que viene. Proponer martes o miercoles por la manana.',
+                type: 'tarea', tag: 'reunion', priority: 'media',
+                author: 'Ana', date: '2026-05-13', pinned: false,
+                done: false, subitems: []
+            },
+            {
+                id: 10, title: 'Organizar archivos',
+                content: 'Clasificar documentos del 2025, eliminar duplicados, hacer backup en la nube.',
+                type: 'tarea', tag: 'info', priority: 'baja',
+                author: 'Ana', date: '2026-05-09', pinned: false,
+                done: true, subitems: []
+            }
+        ];
+
+        // ========== TAB SWITCHING ==========
+        function switchTab(tab) {
+            currentTab = tab;
+            var btns = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].classList.remove('active');
+            }
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            renderNotes();
+        }
+
+        function filterByTag(tag) {
+            currentFilter = tag;
+            var chips = document.querySelectorAll('.filter-chip');
+            for (var i = 0; i < chips.length; i++) {
+                chips[i].classList.remove('active');
+            }
+            event.target.classList.add('active');
+            renderNotes();
+        }
+
+        function filterNotes() {
+            renderNotes();
+        }
+
+        // ========== SHARE & DELETE FUNCTIONS ==========
+        function shareNote(id, platform, event) {
+            if(event) event.stopPropagation();
+            var n = null;
+            for (var i = 0; i < notes.length; i++) {
+                if (notes[i].id === id) { n = notes[i]; break; }
+            }
+            if (!n) return;
+
+            var text = "*" + n.title + "*\n" + n.content;
+            if(n.subitems && n.subitems.length > 0) {
+                text += "\n\n_Lista de filas:_";
+                for(var j=0; j<n.subitems.length; j++) {
+                    text += "\n- " + n.subitems[j];
+                }
+            }
+
+            var url = "";
+            if (platform === 'whatsapp') {
+                url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+            } else if (platform === 'email') {
+                url = "mailto:?subject=" + encodeURIComponent(n.title) + "&body=" + encodeURIComponent(text);
+            } else if (platform === 'teams') {
+                url = "https://teams.microsoft.com/l/chat/0/0?users=&message=" + encodeURIComponent(text);
+            }
+            
+            window.open(url, '_blank');
+        }
+
+        function deleteNoteDirect(id, event) {
+            if(event) event.stopPropagation();
+            if(confirm("¿Seguro que quieres borrar esta nota?")) {
+                notes = notes.filter(function(item) { return item.id !== id; });
+                renderNotes();
+            }
+        }
+
+        function deleteCurrentNote() {
+            if(editingId) {
+                if(confirm("¿Seguro que quieres borrar esta nota?")) {
+                    notes = notes.filter(function(item) { return item.id !== editingId; });
+                    renderNotes();
+                    closeModal();
+                }
+            }
+        }
+
+        // ========== EXCEL-LIKE SUBITEMS UI HELPERS ==========
+        function onTypeChange() {
+            var type = document.getElementById('noteType').value;
+            var wrapper = document.getElementById('subitemsWrapper');
+            if(type === 'tarea') {
+                wrapper.style.display = 'block';
+            } else {
+                wrapper.style.display = 'none';
+            }
+        }
+
+        function addSubitemField(value) {
+            var container = document.getElementById('subitemsContainer');
+            var row = document.createElement('div');
+            row.className = 'subitem-row';
+            row.innerHTML = '<input type="text" class="subitem-input" value="' + value + '" placeholder="Fila/Elemento...">' +
+                            '<button type="button" class="btn-remove-subitem" onclick="this.parentElement.remove()">✕</button>';
+            container.appendChild(row);
+        }
+
+        function getSubitemsValues() {
+            var inputs = document.querySelectorAll('#subitemsContainer .subitem-input');
+            var values = [];
+            for(var i=0; i<inputs.length; i++) {
+                if(inputs[i].value.trim() !== '') {
+                    values.push(inputs[i].value.trim());
+                }
+            }
+            return values;
+        }
+
+        // ========== RENDER ==========
+        function renderNotes() {
+            var container = document.getElementById('notesContainer');
+            var search = document.getElementById('searchInput').value.toLowerCase();
+
+            var filtered = [];
+            for (var i = 0; i < notes.length; i++) {
+                var n = notes[i];
+                // Filter by tab
+                if (currentTab === 'compartidas' && n.type !== 'compartida') continue;
+                if (currentTab === 'personales' && n.type !== 'personal') continue;
+                if (currentTab === 'tareas' && n.type !== 'tarea') continue;
+                // Filter by tag
+                if (currentFilter !== 'todas' && n.tag !== currentFilter) continue;
+                // Filter by search
+                if (search && n.title.toLowerCase().indexOf(search) === -1 && n.content.toLowerCase().indexOf(search) === -1) continue;
+                filtered.push(n);
+            }
+
+            // Sort: pinned first, then by date desc
+            filtered.sort(function(a, b) {
+                if (a.pinned && !b.pinned) return -1;
+                if (!a.pinned && b.pinned) return 1;
+                return new Date(b.date) - new Date(a.date);
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">No hay notas</div></div>';
+                return;
+            }
+
+            var html = '';
+            var lastPinned = false;
+
+            for (var i = 0; i < filtered.length; i++) {
+                var n = filtered[i];
+
+                // Section divider
+                if (n.pinned && !lastPinned && i > 0) {
+                    html += '<div class="section-title">Fijadas</div>';
+                }
+                lastPinned = n.pinned;
+
+                if (n.type === 'tarea') {
+                    html += renderTaskCard(n);
+                } else {
+                    html += renderNoteCard(n);
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderNoteCard(n) {
+            var tagClass = 'tag-' + n.tag;
+            var tagName = n.tag.charAt(0).toUpperCase() + n.tag.slice(1);
+            var priorityClass = 'priority-' + n.priority;
+
+            return '<div class="note-card ' + (n.pinned ? 'pinned' : '') + '" onclick="editNote(' + n.id + ')">' +
+                '<div class="note-header">' +
+                '<div class="note-title">' + (n.pinned ? '<span class="priority-dot ' + priorityClass + '"></span>' : '') + n.title + '</div>' +
+                (n.pinned ? '<span class="note-pin">📌</span>' : '') +
+                '</div>' +
+                '<div class="note-preview">' + n.content + '</div>' +
+                '<div class="note-footer">' +
+                '<div class="note-meta">' +
+                '<span class="note-author">' + n.author + '</span>' +
+                '<span class="note-date">' + n.date + '</span>' +
+                '</div>' +
+                '<div class="note-tags"><span class="note-tag ' + tagClass + '">' + tagName + '</span></div>' +
+                '</div>' +
+                renderActionRow(n) +
+                '</div>';
+        }
+
+        function renderTaskCard(n) {
+            var tagClass = 'tag-' + n.tag;
+            var tagName = n.tag.charAt(0).toUpperCase() + n.tag.slice(1);
+            var priorityClass = 'priority-' + n.priority;
+
+            // Render subitems if available
+            var subitemsHtml = '';
+            if(n.subitems && n.subitems.length > 0) {
+                subitemsHtml += '<div class="task-subitems-preview">';
+                for(var i=0; i<n.subitems.length; i++) {
+                    subitemsHtml += '<div class="subitem-preview-row">📊 ' + n.subitems[i] + '</div>';
+                }
+                subitemsHtml += '</div>';
+            }
+
+            return '<div class="note-card task-item ' + (n.done ? 'task-done' : '') + '">' +
+                '<div class="task-check ' + (n.done ? 'checked' : '') + '" onclick="toggleTask(' + n.id + '); event.stopPropagation();">' + (n.done ? '✓' : '') + '</div>' +
+                '<div class="note-content" onclick="editNote(' + n.id + ')">' +
+                '<div class="note-title">' + n.title + '</div>' +
+                '<div class="note-preview">' + n.content + '</div>' +
+                subitemsHtml +
+                '<div class="note-footer">' +
+                '<div class="note-meta">' +
+                '<span class="note-date">' + n.date + '</span>' +
+                '</div>' +
+                '<div class="note-tags"><span class="note-tag ' + tagClass + '">' + tagName + '</span></div>' +
+                '</div>' +
+                renderActionRow(n) +
+                '</div>' +
+                '</div>';
+        }
+
+        function renderActionRow(n) {
+            return '<div class="card-actions-wrapper">' +
+                '<button class="action-icon-btn" style="color:#25D366;" onclick="shareNote(' + n.id + ', \'whatsapp\', event)">💬 WA</button>' +
+                '<button class="action-icon-btn" style="color:#4682B4;" onclick="shareNote(' + n.id + ', \'teams\', event)">👥 Teams</button>' +
+                '<button class="action-icon-btn" style="color:#666;" onclick="shareNote(' + n.id + ', \'email\', event)">✉️ Mail</button>' +
+                '<button class="action-icon-btn" style="color:#C62828; margin-left:auto;" onclick="deleteNoteDirect(' + n.id + ', event)">🗑️</button>' +
+                '</div>';
+        }
+
+        function toggleTask(id) {
+            for (var i = 0; i < notes.length; i++) {
+                if (notes[i].id === id) {
+                    notes[i].done = !notes[i].done;
+                    break;
+                }
+            }
+            renderNotes();
+        }
+
+        // ========== MODAL ==========
+        function openModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Nueva nota';
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteContent').value = '';
+            document.getElementById('noteType').value = currentTab === 'tareas' ? 'tarea' : currentTab === 'personales' ? 'personal' : 'compartida';
+            document.getElementById('notePriority').value = 'media';
+            document.getElementById('subitemsContainer').innerHTML = '';
+            document.getElementById('modalDeleteWrapper').style.display = 'none';
+            
+            selectedTag = '';
+            var opts = document.querySelectorAll('.tag-option');
+            for (var i = 0; i < opts.length; i++) {
+                opts[i].classList.remove('selected');
+            }
+            onTypeChange();
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            editingId = null;
+        }
+
+        function selectTag(el) {
+            var opts = document.querySelectorAll('.tag-option');
+            for (var i = 0; i < opts.length; i++) {
+                opts[i].classList.remove('selected');
+            }
+            el.classList.add('selected');
+            selectedTag = el.getAttribute('data-tag');
+        }
+
+        function saveNote() {
+            var title = document.getElementById('noteTitle').value.trim();
+            var content = document.getElementById('noteContent').value.trim();
+            var type = document.getElementById('noteType').value;
+            var priority = document.getElementById('notePriority').value;
+            var subitems = (type === 'tarea') ? getSubitemsValues() : [];
+
+            if (!title) { alert('Introduce un titulo'); return; }
+            if (!content) { alert('Escribe algo en la nota'); return; }
+
+            var today = new Date();
+            var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+            if (editingId) {
+                for (var i = 0; i < notes.length; i++) {
+                    if (notes[i].id === editingId) {
+                        notes[i].title = title;
+                        notes[i].content = content;
+                        notes[i].type = type;
+                        notes[i].priority = priority;
+                        notes[i].tag = selectedTag || notes[i].tag;
+                        notes[i].subitems = subitems;
+                        break;
+                    }
+                }
+            } else {
+                notes.push({
+                    id: notes.length + 1,
+                    title: title,
+                    content: content,
+                    type: type,
+                    tag: selectedTag || 'info',
+                    priority: priority,
+                    author: currentUser.name,
+                    date: dateStr,
+                    pinned: false,
+                    done: false,
+                    subitems: subitems
+                });
+            }
+
+            renderNotes();
+            closeModal();
+        }
+
+        function editNote(id) {
+            var n = null;
+            for (var i = 0; i < notes.length; i++) {
+                if (notes[i].id === id) { n = notes[i]; break; }
+            }
+            if (!n) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = 'Editar nota';
+            document.getElementById('noteTitle').value = n.title;
+            document.getElementById('noteContent').value = n.content;
+            document.getElementById('noteType').value = n.type;
+            document.getElementById('notePriority').value = n.priority;
+            
+            // Show dynamic delete button in edit mode
+            document.getElementById('modalDeleteWrapper').style.display = 'block';
+
+            // Clean and update subitems
+            var container = document.getElementById('subitemsContainer');
+            container.innerHTML = '';
+            if(n.subitems && n.subitems.length > 0) {
+                for(var k=0; k<n.subitems.length; k++) {
+                    addSubitemField(n.subitems[k]);
+                }
+            }
+            onTypeChange();
+
+            selectedTag = n.tag;
+            var opts = document.querySelectorAll('.tag-option');
+            for (var i = 0; i < opts.length; i++) {
+                opts[i].classList.remove('selected');
+                if (opts[i].getAttribute('data-tag') === n.tag) {
+                    opts[i].classList.add('selected');
+                }
+            }
+
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        function goTo(page) {
+            var routes = {
+                menu: "index.html",
+                calendario: "calendario.html",
+                kilometros: "kilometros.html",
+                tarifas: "tarifas.html",
+                documentos: "documentos.html",
+                promociones: "promociones.html",
+                notas: "notas.html",
+                sos_contactos: "sos_contactos.html",
+                valvula_escape: "valvula_escape.html",
+                relax_juegos: "relax_juegos.html",
+                enlaces: "enlaces.html",
+                ajustes: "ajustes.html",
+                login: "login.html"
+            };
+            if (routes[page]) window.location.href = routes[page];
+        }
+
+        // Close modal on overlay click
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ========== INIT ==========
+        renderNotes();
+    </script>
+</body>
+</html>

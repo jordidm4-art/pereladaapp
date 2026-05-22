@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada Girona Team - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #FFFFFF;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 30px;
+        }
+        
+        /* Área del Logo corregida para el archivo transparente adjunto */
+        .logo-area {
+            text-align: center;
+            margin-bottom: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .logo-img {
+            width: 280px;
+            height: 120px;
+            margin-bottom: 15px;
+            background-image: url('perelada_logo_transparent.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .logo-subtitle {
+            font-family: 'Georgia', serif;
+            font-size: 22px;
+            color: #2D2D2D;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: #64748B;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            height: 50px;
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 15px;
+            color: #1E293B;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            border-color: #F06B4E;
+            background: #FFFFFF;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            height: 52px;
+            background: #F06B4E;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(240, 107, 78, 0.2);
+            transition: all 0.2s;
+        }
+        
+        .btn-submit:active {
+            transform: scale(0.98);
+            opacity: 0.95;
+        }
+        
+        .error-message {
+            color: #EF4444;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 12px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .links-area {
+            margin-top: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .link {
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .link-primary { color: #F06B4E; }
+        .link-secondary { color: #64748B; }
+    </style>
+</head>
+<body>
+
+    <div class="logo-area">
+        <div class="logo-img"></div>
+        <div class="logo-subtitle">PERELADA GIRONA TEAM</div>
+    </div>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label class="form-label">Usuario</label>
+            <input type="text" id="username" class="form-input" placeholder="Introduce tu usuario" required autocomplete="username">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        
+        <button type="submit" class="btn-submit">Iniciar Sesión</button>
+        <div id="errorMsg" class="error-message">Usuario o contraseña incorrectos</div>
+    </form>
+
+    <div class="links-area">
+        <a href="#" class="link link-primary">¿Has olvidado tu contraseña?</a>
+        <a href="#" class="link link-secondary">Crear cuenta</a>
+    </div>
+    
+    <script>
+        const users = [
+            { username: 'ana', password: '1234', name: 'Ana' },
+            { username: 'maria', password: '1234', name: 'María' },
+            { username: 'juan', password: '1234', name: 'Juan' },
+            { username: 'carlos', password: '1234', name: 'Carlos' },
+            { username: 'laura', password: '1234', name: 'Laura' },
+            { username: 'pedro', password: '1234', name: 'Pedro' }
+        ];
+        
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.toLowerCase().trim();
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = 'index.html';
+            } else {
+                errorMsg.classList.add('show');
+                setTimeout(() => {
+                    errorMsg.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

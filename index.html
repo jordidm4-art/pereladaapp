@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - Menú Principal</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F0F0F0;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-top: 8px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #2D2D2D;
+            font-weight: 700;
+        }
+        .header-badge {
+            background: #F06B4E;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 4px;
+        }
+        .menu-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.15s, background-color 0.15s;
+        }
+        .menu-card:active {
+            transform: scale(0.97);
+            background-color: #F8FAFC;
+        }
+        .menu-icon { 
+            font-size: 32px; 
+        }
+        .menu-title {
+            font-size: 14px;
+            color: #2D2D2D;
+            font-weight: 600;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            padding: 10px 30px 24px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+        .nav-item {
+            font-size: 22px;
+            cursor: pointer;
+            color: #2D2D2D;
+            text-decoration: none;
+            opacity: 0.5;
+            transition: all 0.2s;
+        }
+        .nav-item.active {
+            opacity: 1;
+            color: #F06B4E;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Perelada Team</h1>
+        <span class="header-badge">Girona</span>
+    </div>
+
+    <div class="menu-grid">
+        <div class="menu-card" onclick="goTo('calendario')">
+            <div class="menu-icon">📅</div>
+            <div class="menu-title">Calendario</div>
+        </div>
+        <div class="menu-card" onclick="goTo('kilometros')">
+            <div class="menu-icon">🚗</div>
+            <div class="menu-title">Km Vehículo</div>
+        </div>
+        <div class="menu-card" onclick="goTo('tarifas')">
+            <div class="menu-icon">🏷️</div>
+            <div class="menu-title">Tarifas</div>
+        </div>
+        <div class="menu-card" onclick="goTo('documentos')">
+            <div class="menu-icon">📁</div>
+            <div class="menu-title">Documentos</div>
+        </div>
+        <div class="menu-card" onclick="goTo('promociones')">
+            <div class="menu-icon">📢</div>
+            <div class="menu-title">Promociones</div>
+        </div>
+        <div class="menu-card" onclick="goTo('notas')">
+            <div class="menu-icon">📝</div>
+            <div class="menu-title">Notas</div>
+        </div>
+        <div class="menu-card" onclick="goTo('sos_contactos')">
+            <div class="menu-icon">🚨</div>
+            <div class="menu-title">SOS Contactos</div>
+        </div>
+        <div class="menu-card" onclick="goTo('valvula_escape')">
+            <div class="menu-icon">🤬</div>
+            <div class="menu-title">Válvula Escape</div>
+        </div>
+        <div class="menu-card" onclick="goTo('relax_juegos')">
+            <div class="menu-icon">🎮</div>
+            <div class="menu-title">Relax / Juegos</div>
+        </div>
+        <div class="menu-card" onclick="goTo('enlaces')">
+            <div class="menu-icon">🔗</div>
+            <div class="menu-title">Links Externos</div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="goTo('menu')">&#127968;</div>
+        <div class="nav-item" onclick="goTo('calendario')">&#128197;</div>
+        <div class="nav-item" onclick="goTo('notas')">&#128221;</div>
+        <div class="nav-item" onclick="goTo('tarifas')">&#127991;</div>
+        <div class="nav-item" onclick="goTo('ajustes')">&#9881;</div>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('currentUser')) {
+            window.location.href = 'login.html';
+        }
+
+        // Mapa completo de todas las páginas disponibles
+        var pages = {
+            'menu': 'index.html',
+            'calendario': 'calendario.html',
+            'kilometros': 'kilometros.html',
+            'tarifas': 'tarifas.html',
+            'documentos': 'documentos.html',
+            'promociones': 'promociones.html',
+            'notas': 'notas.html',
+            'sos_contactos': 'sos_contactos.html',
+            'valvula_escape': 'valvula_escape.html',
+            'relax_juegos': 'relax_juegos.html',
+            'enlaces': 'enlaces.html',
+            'ajustes': 'ajustes.html',
+            'login': 'login.html'
+        };
+
+        function goTo(page) {
+            if (page === 'menu') return;
+            if (pages[page]) {
+                window.location.href = pages[page];
+            }
+        }
+    </script>
+</body>
+</html>

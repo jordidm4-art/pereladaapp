@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - Enlaces</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F0F0F0;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-top: 8px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #2D2D2D;
+            font-weight: 700;
+        }
+
+        /* Botón de Ordenar */
+        .btn-order {
+            background: white;
+            border: 1.5px solid #E0E0E0;
+            color: #666;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-order.active {
+            background: #F06B4E;
+            color: white;
+            border-color: #F06B4E;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+            margin-left: 8px;
+        }
+        .search-bar input::placeholder { color: #999; }
+
+        /* Lista de Enlaces Única */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .link-card {
+            background: white;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+            border-left: 4px solid #F06B4E;
+        }
+        .link-card:hover { 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+        }
+
+        .link-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .link-icon {
+            font-size: 22px;
+            width: 40px;
+            height: 40px;
+            background: #F9F9F9;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .link-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .link-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2D2D2D;
+        }
+
+        .link-subtitle {
+            font-size: 12px;
+            color: #888;
+            max-width: 240px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Controles de ordenación */
+        .order-controls {
+            display: none;
+            gap: 4px;
+        }
+        .order-btn {
+            background: #F5F5F5;
+            border: 1px solid #DDD;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #333;
+        }
+        .order-btn:active { background: #E0E0E0; }
+
+        .arrow-icon {
+            font-size: 14px;
+            color: #CCC;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            padding: 10px 30px 24px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 50;
+        }
+        .nav-item {
+            font-size: 22px;
+            opacity: 0.5;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item.active {
+            opacity: 1;
+            color: #F06B4E;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+    <div class="header">
+        <h1>Accesos Directos</h1>
+        <button class="btn-order" id="toggleOrderBtn" onclick="toggleOrderMode()">⚙️ Ordenar</button>
+    </div>
+
+    <div class="search-bar" id="searchBarWrapper">
+        <span style="color:#999;font-size:14px;">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar accesos..." oninput="filterLinks()">
+    </div>
+
+    <div class="links-list" id="linksContainer">
+        </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">🏠</div>
+        <div class="nav-item" onclick="goTo('calendario')">📅</div>
+        <div class="nav-item" onclick="goTo('notas')">📝</div>
+        <div class="nav-item active">⚙️</div>
+    </div>
+
+    <script>
+        var isOrderMode = false;
+
+        // Base de datos de URLs universales e hipervínculos funcionales al 100%
+        var defaultElements = [
+            { id: 1, title: 'Captio', subtitle: 'Gestión de gastos de viaje', icon: '💶', url: 'https://www.captio.net/app/' },
+            { id: 2, title: 'Sesame Mobile', subtitle: 'Control horario y fichajes', icon: '⏰', url: 'https://app.sesametime.com/' },
+            { id: 3, title: 'Uve Solutions', subtitle: 'Plataforma de datos de mercado', icon: '📈', url: 'https://www.uvesolutions.com/' },
+            { id: 4, title: 'UveStreet', subtitle: 'Aplicación comercial de campo', icon: '🏃', url: 'https://uvestreet.com/' },
+            { id: 5, title: 'Isumi Pedidos', subtitle: 'pedidos.isumi.es/signin', icon: '📦', url: 'https://pedidos.isumi.es/signin' },
+            { id: 6, title: 'Isumi Cartas', subtitle: 'sapient.wineissocial.com', icon: '🍷', url: 'https://sapient.wineissocial.com' },
+            { id: 7, title: 'Intranet Grup Perelada', subtitle: 'intranet.grupperalada.com', icon: '🏢', url: 'https://intranet.grupperalada.com' },
+            { id: 8, title: 'Wine is Social', subtitle: 'wineissocial.pro', icon: '🥂', url: 'https://wineissocial.pro' }
+        ];
+
+        var elements = JSON.parse(localStorage.getItem('perelada_enlaces_orden')) || defaultElements;
+
+        function renderLinks() {
+            var container = document.getElementById('linksContainer');
+            var search = document.getElementById('searchInput').value.toLowerCase();
+            var html = '';
+
+            var filtered = elements;
+            if (!isOrderMode && search) {
+                filtered = elements.filter(function(item) {
+                    return item.title.toLowerCase().indexOf(search) !== -1 || item.subtitle.toLowerCase().indexOf(search) !== -1;
+                });
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><div class="empty-state-text">No se encontraron accesos</div></div>';
+                return;
+            }
+
+            for (var i = 0; i < filtered.length; i++) {
+                var item = filtered[i];
+                
+                var hrefAttr = isOrderMode ? 'href="javascript:void(0);"' : 'href="' + item.url + '" target="_blank"';
+                var displayArrow = isOrderMode ? 'none' : 'block';
+                var displayControls = isOrderMode ? 'flex' : 'none';
+
+                html += '<div class="link-card" style="cursor: ' + (isOrderMode ? 'default' : 'pointer') + ';">' +
+                    '<a ' + hrefAttr + ' style="text-decoration:none; color:inherit; flex:1; display:flex; align-items:center; justify-content:space-between;">' +
+                        '<div class="link-info">' +
+                            '<div class="link-icon">' + item.icon + '</div>' +
+                            '<div class="link-details">' +
+                                '<div class="link-title">' + item.title + '</div>' +
+                                '<div class="link-subtitle">' + item.subtitle + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="arrow-icon" style="display:' + displayArrow + ';">➔</div>' +
+                    '</a>' +
+                    '<div class="order-controls" style="display:' + displayControls + ';">' +
+                        '<button class="order-btn" onclick="moveUp(' + i + ', event)">▲</button>' +
+                        '<button class="order-btn" onclick="moveDown(' + i + ', event)">▼</button>' +
+                    '</div>' +
+                '</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function toggleOrderMode() {
+            isOrderMode = !isOrderMode;
+            var btn = document.getElementById('toggleOrderBtn');
+            var searchBar = document.getElementById('searchBarWrapper');
+            
+            if (isOrderMode) {
+                btn.textContent = '💾 Listo';
+                btn.classList.add('active');
+                searchBar.style.opacity = '0.4';
+                document.getElementById('searchInput').disabled = true;
+                document.getElementById('searchInput').value = '';
+            } else {
+                btn.textContent = '⚙️ Ordenar';
+                btn.classList.remove('active');
+                searchBar.style.opacity = '1';
+                document.getElementById('searchInput').disabled = false;
+                localStorage.setItem('perelada_enlaces_orden', JSON.stringify(elements));
+            }
+            renderLinks();
+        }
+
+        function moveUp(index, event) {
+            if(event) event.stopPropagation();
+            if (index === 0) return;
+            var temp = elements[index];
+            elements[index] = elements[index - 1];
+            elements[index - 1] = temp;
+            renderLinks();
+        }
+
+        function moveDown(index, event) {
+            if(event) event.stopPropagation();
+            if (index === elements.length - 1) return;
+            var temp = elements[index];
+            elements[index] = elements[index + 1];
+            elements[index + 1] = temp;
+            renderLinks();
+        }
+
+        function filterLinks() {
+            renderLinks();
+        }
+
+        function goTo(page) {
+            var routes = {
+                menu: "index.html",
+                calendario: "calendario.html",
+                kilometros: "kilometros.html",
+                tarifas: "tarifas.html",
+                documentos: "documentos.html",
+                promociones: "promociones.html",
+                notas: "notas.html",
+                sos_contactos: "sos_contactos.html",
+                valvula_escape: "valvula_escape.html",
+                relax_juegos: "relax_juegos.html",
+                enlaces: "enlaces.html",
+                ajustes: "ajustes.html",
+                login: "login.html"
+            };
+            if (routes[page]) window.location.href = routes[page];
+        }
+
+        renderLinks();
+    </script>
+</body>
+</html>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ISUMI - Calendario</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F0F0F0;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-top: 8px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #2D2D2D;
+            font-weight: 700;
+        }
+        .view-switcher {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 3px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .view-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            color: #999;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+        .view-btn.active {
+            background: #F06B4E;
+            color: white;
+        }
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .month-nav button {
+            background: #F06B4E;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .month-year-display {
+            flex: 1;
+            text-align: center;
+            background: #FFCCBC;
+            border: 2px solid #F06B4E;
+            border-radius: 18px;
+            padding: 8px 14px;
+            color: #D84315;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .picker-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .picker-overlay.show { display: flex; }
+        .picker-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 350px;
+        }
+        .picker-section { margin-bottom: 20px; }
+        .picker-section label {
+            display: block;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .picker-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #FFCCBC;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .year-jump {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .year-chip {
+            background: #FFCCBC;
+            color: #D84315;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .year-chip.active {
+            background: #F06B4E;
+            color: white;
+        }
+        .legend {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: #666;
+        }
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .calendar-month {
+            background: white;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .weekday {
+            font-size: 11px;
+            color: #999;
+            font-weight: 600;
+        }
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+        .day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            font-size: 12px;
+            color: #333;
+            padding: 6px 1px;
+            min-height: 44px;
+        }
+        .day.today {
+            background: #F06B4E;
+            color: white;
+            font-weight: 700;
+        }
+        .day.selected { background: #FFCCBC; color: #D84315; font-weight: 700; }
+        .day.other-month { color: #CCC; opacity: 0.3; }
+        
+        /* DISEÑO DE LÍNEA DE VACACIONES MEJORADO */
+        .vacation-line {
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            z-index: 5;
+        }
+        .vacation-line.start { border-top-left-radius: 4px; border-bottom-left-radius: 4px; left: 2px; }
+        .vacation-line.end { border-top-right-radius: 4px; border-bottom-right-radius: 4px; right: 2px; }
+        .vacation-line.single { border-radius: 4px; left: 2px; right: 2px; }
+
+        .day-number {
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 10;
+        }
+        .day-events {
+            display: flex;
+            gap: 2px;
+            margin-top: 4px;
+            z-index: 10;
+            height: 4px;
+        }
+        .event-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+        }
+        
+        .calendar-week, .calendar-day {
+            display: none;
+            background: white;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        .day-view-header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .day-view-header .day-num {
+            font-size: 32px;
+            color: #F06B4E;
+            font-weight: 700;
+        }
+        .day-event-card {
+            background: #FFF8F5;
+            border-left: 3px solid #F06B4E;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .events-section {
+            background: white;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .events-section h2 { font-size: 15px; color: #2D2D2D; margin-bottom: 10px; }
+        .event-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: #F5F5F5;
+        }
+        .event-color { width: 4px; height: 32px; border-radius: 2px; }
+        .event-info h3 { font-size: 13px; color: #333; }
+        .event-info p { font-size: 11px; color: #999; }
+        
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 16px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #F06B4E;
+            color: white;
+            border: none;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .modal-input, .modal-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #FFCCBC;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .time-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .time-row > div { flex: 1; }
+        .date-range { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+        .date-range input { flex: 1; padding: 10px; border: 2px solid #FFCCBC; border-radius: 10px; }
+        .vacation-info { background: #FFF3E0; border-radius: 10px; padding: 10px; margin-bottom: 12px; font-size: 12px; color: #D84315; }
+        
+        .modal-buttons { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+        .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
+        .btn-primary { background: #F06B4E; color: white; }
+        .btn-secondary { background: #FFCCBC; color: #D84315; }
+        .btn-danger { background: #EF4444; color: white; }
+        
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px;
+            background: white; padding: 10px 30px 24px; display: flex; justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 900;
+        }
+        .nav-item { font-size: 22px; opacity: 0.5; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: #F06B4E; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Calendario</h1>
+    </div>
+
+    <div class="view-switcher">
+        <button class="view-btn active" onclick="switchView('month')" id="btnMonth">Mes</button>
+        <button class="view-btn" onclick="switchView('week')" id="btnWeek">Semana</button>
+        <button class="view-btn" onclick="switchView('day')" id="btnDay">Día</button>
+    </div>
+
+    <div class="month-nav">
+        <button onclick="navigate(-1)">&lt;</button>
+        <div class="month-year-display" onclick="openPicker()">
+            <span id="monthYearText">Mayo 2026</span>
+        </div>
+        <button onclick="navigate(1)">&gt;</button>
+    </div>
+
+    <div class="year-jump" id="yearJump">
+        <div class="year-chip" onclick="jumpToYear(2025)">2025</div>
+        <div class="year-chip active" onclick="jumpToYear(2026)">2026</div>
+        <div class="year-chip" onclick="jumpToYear(2027)">2027</div>
+    </div>
+
+    <div class="picker-overlay" id="pickerOverlay">
+        <div class="picker-content">
+            <h3 style="margin-bottom:12px; text-align:center;">Ir a fecha</h3>
+            <div class="picker-section">
+                <input type="number" class="picker-input" id="pickerYear" min="1900" max="2200" value="2026">
+            </div>
+            <div class="picker-section" style="margin-top:10px;">
+                <select class="picker-input" id="pickerMonth">
+                    <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option>
+                    <option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option>
+                    <option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option>
+                    <option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
+                </select>
+            </div>
+            <div class="modal-buttons" style="flex-direction:row; gap:10px; margin-top:15px;">
+                <button class="btn btn-secondary" onclick="closePicker()">Cancelar</button>
+                <button class="btn btn-primary" onclick="goToDate()">Ir</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background: #3B82F6;"></div><span>Ana</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background: #EF4444;"></div><span>Maria</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background: #10B981;"></div><span>Juan</span></div>
+    </div>
+
+    <div class="calendar-month" id="viewMonth">
+        <div class="weekdays">
+            <div class="weekday">L</div><div class="weekday">M</div><div class="weekday">X</div><div class="weekday">J</div><div class="weekday">V</div><div class="weekday">S</div><div class="weekday">D</div>
+        </div>
+        <div class="days" id="calendarDaysMonth"></div>
+    </div>
+
+    <div class="calendar-week" id="viewWeek">
+        <div style="text-align:center; padding:20px; color:#666;">Vista semanal simplificada móvil activa.</div>
+    </div>
+
+    <div class="calendar-day" id="viewDay">
+        <div class="day-view-header" id="dayViewHeader"></div>
+        <div id="dayTimeline"></div>
+    </div>
+
+    <div class="events-section">
+        <h2>Próximos eventos y vacaciones</h2>
+        <div id="eventsList"></div>
+    </div>
+
+    <button class="fab" onclick="openModal()">+</button>
+
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="margin-bottom:12px;">Nuevo evento</h2>
+            <input type="hidden" id="editingEventId" value="">
+
+            <input type="text" class="modal-input" id="eventTitle" placeholder="Título o motivo">
+
+            <select class="modal-select" id="eventType" onchange="toggleDateRange()">
+                <option value="event">Evento / Cita</option>
+                <option value="vacation">Vacaciones</option>
+            </select>
+
+            <div id="singleDateContainer">
+                <input type="date" class="modal-input" id="eventDate">
+                <div class="time-row">
+                    <div><input type="time" class="modal-input" id="eventStartTime" value="09:00"></div>
+                    <div><input type="time" class="modal-input" id="eventEndTime" value="10:00"></div>
+                </div>
+                <input type="text" class="modal-input" id="eventLocation" placeholder="Lugar (Sala, dirección)">
+                
+                <input type="email" class="modal-input" id="eventGuest" placeholder="Correo del invitado (Opcional)">
+            </div>
+
+            <div id="dateRangeContainer" style="display: none;">
+                <div class="date-range">
+                    <label>Inicio:</label><input type="date" id="vacationStart">
+                </div>
+                <div class="date-range">
+                    <label>Fin:</label><input type="date" id="vacationEnd">
+                </div>
+                <div class="vacation-info" id="vacationDaysInfo" style="display:none;">Total: <span id="vacationDaysCount">0</span> días</div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveEvent()">Guardar Registro</button>
+                <button class="btn btn-danger" id="deleteBtn" style="display:none;" onclick="deleteCurrentEvent()">Anular / Eliminar</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">🏠</div>
+        <div class="nav-item active">📅</div>
+        <div class="nav-item" onclick="goTo('notas')">📝</div>
+        <div class="nav-item" onclick="goTo('menu')">⚙️</div>
+    </div>
+
+    <script>
+        // Configuración automática del día de hoy al cargar la aplicación
+        var todayObj = new Date();
+        var todayStr = todayObj.getFullYear() + '-' + String(todayObj.getMonth()+1).padStart(2,'0') + '-' + String(todayObj.getDate()).padStart(2,'0');
+
+        var currentView = 'month';
+        var currentYear = todayObj.getFullYear();
+        var currentMonth = todayObj.getMonth(); 
+        var selectedDate = todayStr; 
+
+        var monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        var userColors = { 'Ana': '#3B82F6', 'Maria': '#EF4444', 'Juan': '#10B981' };
+
+        // Datos iniciales persistidos
+        var events = [
+            { id: 1, title: 'Reunión equipo', date: '2026-05-14', startTime: '10:00', endTime: '11:30', location: 'Sala A', user: 'Ana', type: 'event', guest: '' },
+            { id: 2, title: 'Vacaciones Maria', date: '2026-05-15', endDate: '2026-05-20', user: 'Maria', type: 'vacation', guest: '' },
+            { id: 3, title: 'Visita cliente', date: '2026-05-19', startTime: '14:00', endTime: '16:00', location: 'Oficina Bcn', user: 'Juan', type: 'event', guest: '' }
+        ];
+
+        function switchView(view) {
+            currentView = view;
+            document.getElementById('btnMonth').classList.remove('active');
+            document.getElementById('btnWeek').classList.remove('active');
+            document.getElementById('btnDay').classList.remove('active');
+            document.getElementById('btn' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
+
+            document.getElementById('viewMonth').style.display = view === 'month' ? 'block' : 'none';
+            document.getElementById('viewWeek').style.display = view === 'week' ? 'block' : 'none';
+            document.getElementById('viewDay').style.display = view === 'day' ? 'block' : 'none';
+
+            if (view === 'month') generateMonthView();
+            else if (view === 'day') generateDayView();
+        }
+
+        function navigate(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            updateCalendarDisplay();
+            refreshAll();
+        }
+
+        function jumpToYear(year) {
+            currentYear = year;
+            var chips = document.querySelectorAll('.year-chip');
+            chips.forEach(c => {
+                if(parseInt(c.textContent) === year) c.classList.add('active');
+                else c.classList.remove('active');
+            });
+            updateCalendarDisplay();
+            refreshAll();
+        }
+
+        function updateCalendarDisplay() {
+            document.getElementById('monthYearText').textContent = monthNames[currentMonth] + ' ' + currentYear;
+        }
+
+        function checkInVacation(dateStr, ev) {
+            if (ev.type !== 'vacation') return ev.date === dateStr;
+            if (!ev.endDate) return ev.date === dateStr;
+            return dateStr >= ev.date && dateStr <= ev.endDate;
+        }
+
+        function generateMonthView() {
+            var container = document.getElementById('calendarDaysMonth');
+            if(!container) return;
+            container.innerHTML = '';
+
+            var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            var daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+            var startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+            // Mes Anterior
+            for (var i = startOffset - 1; i >= 0; i--) {
+                var dDiv = document.createElement('div');
+                dDiv.className = 'day other-month';
+                dDiv.innerHTML = '<span class="day-number">' + (daysInPrevMonth - i) + '</span>';
+                container.appendChild(dDiv);
+            }
+
+            // Mes Actual
+            for (var day = 1; day <= daysInMonth; day++) {
+                var dateStr = currentYear + '-' + String(currentMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+                
+                var dayEvents = events.filter(ev => checkInVacation(dateStr, ev));
+
+                var dDiv = document.createElement('div');
+                dDiv.className = 'day';
+                
+                // Resaltar día actual
+                if (dateStr === todayStr) dDiv.classList.add('today');
+                if (selectedDate === dateStr) dDiv.classList.add('selected');
+
+                // Renderizado de línea unificada de Vacaciones
+                dayEvents.forEach(ev => {
+                    if (ev.type === 'vacation') {
+                        var line = document.createElement('div');
+                        line.className = 'vacation-line';
+                        line.style.backgroundColor = userColors[ev.user] || '#F06B4E';
+                        line.style.opacity = '0.4';
+                        
+                        if (dateStr === ev.date && dateStr === ev.endDate) line.classList.add('single');
+                        else if (dateStr === ev.date) line.classList.add('start');
+                        else if (dateStr === ev.endDate) line.classList.add('end');
+                        
+                        dDiv.appendChild(line);
+                    }
+                });
+
+                var numSpan = document.createElement('span');
+                numSpan.className = 'day-number';
+                numSpan.textContent = day;
+                dDiv.appendChild(numSpan);
+
+                // Puntos de Citas
+                var dotsDiv = document.createElement('div');
+                dotsDiv.className = 'day-events';
+                dayEvents.forEach(ev => {
+                    if (ev.type === 'event') {
+                        var dot = document.createElement('div');
+                        dot.className = 'event-dot';
+                        dot.style.background = userColors[ev.user];
+                        dotsDiv.appendChild(dot);
+                    }
+                });
+                dDiv.appendChild(dotsDiv);
+
+                (function(dStr) {
+                    dDiv.onclick = function() { selectDate(dStr); };
+                })(dateStr);
+
+                container.appendChild(dDiv);
+            }
+        }
+
+        function generateDayView() {
+            var container = document.getElementById('dayTimeline');
+            var header = document.getElementById('dayViewHeader');
+            if(!container || !header) return;
+
+            var dateStr = selectedDate || todayStr;
+            header.innerHTML = '<div class="day-num">' + dateStr.split('-')[2] + '</div><div style="color:#666;">' + monthNames[parseInt(dateStr.split('-')[1])-1] + '</div>';
+
+            var dayEvents = events.filter(ev => checkInVacation(dateStr, ev));
+            
+            if(dayEvents.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Sin citas ni tareas hoy.</div>';
+                return;
+            }
+
+            var html = '';
+            dayEvents.forEach(ev => {
+                var time = ev.type === 'vacation' ? 'Todo el día (Vacaciones)' : ev.startTime + ' - ' + ev.endTime;
+                var guestHtml = (ev.guest) ? '<div style="font-size:11px; color:#3B82F6;">Invitado: ' + ev.guest + '</div>' : '';
+                html += '<div class="day-event-card" onclick="editEvent(' + ev.id + ')">' +
+                        '<div style="font-size:11px; color:#F06B4E; font-weight:700;">' + time + '</div>' +
+                        '<div style="font-weight:600; color:#2D2D2D;">' + ev.title + '</div>' +
+                        (ev.location ? '<div style="font-size:11px; color:#999;">Lugar: ' + ev.location + '</div>' : '') +
+                        guestHtml +
+                        '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function selectDate(dateStr) {
+            selectedDate = dateStr;
+            generateMonthView();
+            switchView('day');
+        }
+
+        function editEvent(id) {
+            var ev = events.find(e => e.id === id);
+            if (!ev) return;
+
+            openModal();
+            document.getElementById('editingEventId').value = ev.id;
+            document.getElementById('eventTitle').value = ev.title;
+            document.getElementById('eventType').value = ev.type;
+            
+            if (ev.type === 'event') {
+                document.getElementById('eventDate').value = ev.date;
+                document.getElementById('eventStartTime').value = ev.startTime;
+                document.getElementById('eventEndTime').value = ev.endTime;
+                document.getElementById('eventLocation').value = ev.location;
+                document.getElementById('eventGuest').value = ev.guest || '';
+            } else {
+                document.getElementById('vacationStart').value = ev.date;
+                document.getElementById('vacationEnd').value = ev.endDate || ev.date;
+            }
+            
+            document.getElementById('modalTitle').textContent = "Modificar / Anular Cita";
+            document.getElementById('deleteBtn').style.display = "block";
+            toggleDateRange();
+        }
+
+        function deleteCurrentEvent() {
+            var id = parseInt(document.getElementById('editingEventId').value);
+            if(id) {
+                events = events.filter(ev => ev.id !== id);
+                closeModal();
+                refreshAll();
+            }
+        }
+
+        function openModal() {
+            document.getElementById('eventModal').classList.add('show');
+            document.getElementById('editingEventId').value = '';
+            document.getElementById('deleteBtn').style.display = 'none';
+            document.getElementById('modalTitle').textContent = "Nuevo evento";
+            var defDate = selectedDate || todayStr;
+            document.getElementById('eventDate').value = defDate;
+            document.getElementById('vacationStart').value = defDate;
+            document.getElementById('vacationEnd').value = defDate;
+            document.getElementById('eventGuest').value = '';
+        }
+
+        function closeModal() {
+            document.getElementById('eventModal').classList.remove('show');
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventGuest').value = '';
+        }
+
+        function saveEvent() {
+            var title = document.getElementById('eventTitle').value;
+            var type = document.getElementById('eventType').value;
+            var id = document.getElementById('editingEventId').value;
+
+            if(!title) return alert('Por favor, añada un título.');
+
+            if(id) events = events.filter(ev => ev.id !== parseInt(id));
+
+            var newEvent = null;
+
+            if(type === 'event') {
+                var guestEmail = document.getElementById('eventGuest').value;
+                var eventDate = document.getElementById('eventDate').value;
+                var startTime = document.getElementById('eventStartTime').value;
+                var endTime = document.getElementById('eventEndTime').value;
+                var location = document.getElementById('eventLocation').value;
+
+                newEvent = {
+                    id: id ? parseInt(id) : Date.now(),
+                    title: title,
+                    date: eventDate,
+                    startTime: startTime,
+                    endTime: endTime,
+                    location: location,
+                    user: 'Ana',
+                    type: 'event',
+                    guest: guestEmail
+                };
+
+                events.push(newEvent);
+
+                // Si se ha introducido un correo, se ejecuta la acción de invitar
+                if (guestEmail.trim() !== '') {
+                    sendInvitationEmail(newEvent);
+                }
+
+            } else {
+                newEvent = {
+                    id: id ? parseInt(id) : Date.now(),
+                    title: title,
+                    date: document.getElementById('vacationStart').value,
+                    endDate: document.getElementById('vacationEnd').value,
+                    user: 'Ana',
+                    type: 'vacation',
+                    guest: ''
+                };
+                events.push(newEvent);
+            }
+            closeModal();
+            refreshAll();
+        }
+
+        // FUNCIÓN NUEVA: Envío estructurado de invitaciones y sistema de respuesta por mail
+        function sendInvitationEmail(ev) {
+            var subject = encodeURIComponent('Invitación: ' + ev.title);
+            
+            // Creación de las respuestas predefinidas usando mailto cruzado
+            var replyYes = 'mailto:ana@tuempresa.com?subject=' + encodeURIComponent('Confirmación ASISTIRÉ: ' + ev.title) + '&body=' + encodeURIComponent('Hola, confirmo que SÍ asistiré al evento:\n\n' + ev.title + '\nFecha: ' + ev.date);
+            var replyNo = 'mailto:ana@tuempresa.com?subject=' + encodeURIComponent('Confirmación NO ASISTIRÉ: ' + ev.title) + '&body=' + encodeURIComponent('Hola, lamento informar que NO podré asistir al evento:\n\n' + ev.title + '\nFecha: ' + ev.date);
+
+            var bodyText = 'Has sido invitado al siguiente evento:\n\n' +
+                           'Título: ' + ev.title + '\n' +
+                           'Fecha: ' + ev.date + '\n' +
+                           'Horario: ' + ev.startTime + ' - ' + ev.endTime + '\n' +
+                           (ev.location ? 'Lugar: ' + ev.location + '\n' : '') +
+                           '\n-------------------------------------\n' +
+                           'POR FAVOR, CONFIRMA TU ASISTENCIA PULSANDO UNA OPCIÓN:\n\n' +
+                           '👉 SÍ, ASISTIRÉ: \n' + replyYes + '\n\n' +
+                           '👉 NO ASISTIRÉ: \n' + replyNo + '\n' +
+                           '\n-------------------------------------\n';
+
+            var mailtoUrl = 'mailto:' + ev.guest + '?subject=' + subject + '&body=' + encodeURIComponent(bodyText);
+            
+            // Abre la aplicación de correo del teléfono de forma nativa
+            window.location.href = mailtoUrl;
+        }
+
+        function showEventsList() {
+            var list = document.getElementById('eventsList');
+            if(!list) return;
+            var html = '';
+            events.sort((a,b) => a.date.localeCompare(b.date)).forEach(ev => {
+                var dStr = ev.endDate ? ev.date + ' al ' + ev.endDate : ev.date;
+                var guestText = ev.guest ? ' | Invitado: ' + ev.guest : '';
+                html += '<div class="event-card" onclick="editEvent(' + ev.id + ')">' +
+                        '<div class="event-color" style="background:' + userColors[ev.user] + ';"></div>' +
+                        '<div class="event-info">' +
+                        '<h3>' + ev.title + '</h3>' +
+                        '<p>' + dStr + ' - Por: ' + ev.user + guestText + '</p>' +
+                        '</div>' +
+                        '</div>';
+            });
+            list.innerHTML = html;
+        }
+
+        function toggleDateRange() {
+            var isVacation = document.getElementById('eventType').value === 'vacation';
+            document.getElementById('singleDateContainer').style.display = isVacation ? 'none' : 'block';
+            document.getElementById('dateRangeContainer').style.display = isVacation ? 'block' : 'none';
+        }
+
+        function refreshAll() {
+            generateMonthView();
+            generateDayView();
+            showEventsList();
+        }
+
+        function openPicker() { document.getElementById('pickerOverlay').classList.add('show'); }
+        function closePicker() { document.getElementById('pickerOverlay').classList.remove('show'); }
+        function goToDate() {
+            currentYear = parseInt(document.getElementById('pickerYear').value);
+            currentMonth = parseInt(document.getElementById('pickerMonth').value);
+            updateCalendarDisplay();
+            refreshAll();
+            closePicker();
+        }
+
+        function goTo(page) {
+            var routes = {
+                menu: "index.html",
+                calendario: "calendario.html",
+                kilometros: "kilometros.html",
+                tarifas: "tarifas.html",
+                documentos: "documentos.html",
+                promociones: "promociones.html",
+                notas: "notas.html",
+                sos_contactos: "sos_contactos.html",
+                valvula_escape: "valvula_escape.html",
+                relax_juegos: "relax_juegos.html",
+                enlaces: "enlaces.html",
+                ajustes: "ajustes.html",
+                login: "login.html"
+            };
+            if (routes[page]) window.location.href = routes[page];
+        }
+
+        // Setup inicial
+        document.getElementById('vacationStart').addEventListener('change', calcDays);
+        document.getElementById('vacationEnd').addEventListener('change', calcDays);
+        function calcDays() {
+            var s = document.getElementById('vacationStart').value;
+            var e = document.getElementById('vacationEnd').value;
+            if(s && e) {
+                var count = Math.ceil(Math.abs(new Date(e) - new Date(s)) / (1000*60*60*24)) + 1;
+                document.getElementById('vacationDaysCount').textContent = count;
+                document.getElementById('vacationDaysInfo').style.display = 'block';
+            }
+        }
+
+        updateCalendarDisplay();
+        refreshAll();
+    </script>
+</body>
+</html>

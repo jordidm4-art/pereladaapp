@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - Documentos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F0F0F0;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-top: 8px;
+        }
+        .header h1 { font-size: 24px; color: #2D2D2D; font-weight: 700; }
+
+        /* Pestañas Compartido / Personal */
+        .view-switcher {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 3px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .view-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748B;
+            cursor: pointer;
+            border-radius: 9px;
+            transition: all 0.2s;
+        }
+        .view-btn.active {
+            background: #F06B4E;
+            color: white;
+        }
+
+        /* Zona de Subida Ultra Fácil */
+        .upload-zone {
+            background: white;
+            border: 2px dashed #E2E8F0;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        .upload-zone:active, .upload-zone.dragover {
+            border-color: #F06B4E;
+            background: #FFF5F2;
+        }
+        .upload-icon { font-size: 32px; margin-bottom: 8px; }
+        .upload-text { font-size: 14px; font-weight: 600; color: #2D2D2D; }
+        .upload-sub { font-size: 12px; color: #64748B; margin-top: 2px; }
+        #fileInput { display: none; }
+
+        /* Sección de Carpetas */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .section-title { font-size: 15px; font-weight: 700; color: #2D2D2D; }
+        .add-folder-btn { font-size: 13px; color: #F06B4E; font-weight: 600; cursor: pointer; }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .folder-card {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+            border: 1px solid transparent;
+        }
+        .folder-card.active {
+            border-color: #F06B4E;
+            background: #FFF5F2;
+        }
+        .folder-icon { font-size: 28px; margin-bottom: 4px; }
+        .folder-name { font-size: 12px; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Botón de borrar carpeta integrado de forma sutil */
+        .delete-folder-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 18px;
+            height: 18px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Lista de Archivos */
+        .doc-list { display: flex; flex-direction: column; gap: 10px; }
+        .doc-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .doc-icon {
+            font-size: 22px; width: 40px; height: 40px; background: #F8FAFC;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .doc-info { flex: 1; min-width: 0; }
+        .doc-name { font-size: 13px; font-weight: 600; color: #2D2D2D; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .doc-meta { font-size: 11px; color: #64748B; }
+        
+        .action-btn {
+            width: 32px; height: 32px; background: #F8FAFC; border: 1px solid #E2E8F0;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; cursor: pointer; color: #475569; flex-shrink: 0;
+        }
+        .action-btn.delete { color: #EF4444; background: #FEF2F2; border-color: #FEE2E2; }
+        .action-btn.share { color: #2563EB; background: #EFF6FF; border-color: #DBEAFE; }
+
+        /* Barra inferior unificada */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px;
+            background: white; padding: 10px 30px 24px; display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000;
+        }
+        .nav-item { font-size: 22px; cursor: pointer; color: #2D2D2D; text-decoration: none; opacity: 0.5; }
+        .nav-item.active { opacity: 1; color: #F06B4E; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Documentos</h1>
+    </div>
+
+    <div class="view-switcher">
+        <div class="view-btn active" id="tabCompartido" onclick="switchTab('compartido')">Compartido</div>
+        <div class="view-btn" id="tabPersonal" onclick="switchTab('personal')">Personal</div>
+    </div>
+
+    <div class="upload-zone" onclick="triggerUpload()" id="dropZone">
+        <div class="upload-icon">📤</div>
+        <div class="upload-text">Toca para subir un archivo</div>
+        <div class="upload-sub" id="uploadSubText">Se guardará en la carpeta seleccionada</div>
+        <input type="file" id="fileInput" onchange="handleFileSelect(this)">
+    </div>
+
+    <div class="section-header">
+        <div class="section-title" id="folderTitle">Carpetas en Compartido</div>
+        <div class="add-folder-btn" onclick="createNewFolder()">+ Nueva Carpeta</div>
+    </div>
+
+    <div class="folder-grid" id="foldersContainer"></div>
+
+    <div class="section-title" style="margin-bottom: 12px;" id="filesTitle">Archivos</div>
+    <div class="doc-list" id="filesContainer"></div>
+
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">&#127968;</div>
+        <div class="nav-item" onclick="goTo('calendario')">&#128197;</div>
+        <div class="nav-item" onclick="goTo('notas')">&#128221;</div>
+        <div class="nav-item" onclick="goTo('tarifas')">&#127991;</div>
+        <div class="nav-item" onclick="goTo('ajustes')">&#9881;</div>
+    </div>
+
+    <script>
+        // Cargar datos del LocalStorage o usar datos por defecto
+        var defaultFolders = [
+            { id: "c1", name: "Manuales", type: "compartido" },
+            { id: "c2", name: "Circulares", type: "compartido" },
+            { id: "p1", name: "Nominas", type: "personal" },
+            { id: "p2", name: "Contratos", type: "personal" }
+        ];
+
+        var defaultFiles = [
+            { id: "f1", name: "Manual_Bienvenida_2026.pdf", size: "2.4 MB", folderId: "c1" },
+            { id: "f2", name: "Normativa_Seguridad.pdf", size: "1.1 MB", folderId: "c1" },
+            { id: "f3", name: "Nomina_Mayo.pdf", size: "145 KB", folderId: "p1" }
+        ];
+
+        var folders = JSON.parse(localStorage.getItem('doc_folders')) || defaultFolders;
+        var files = JSON.parse(localStorage.getItem('doc_files')) || defaultFiles;
+
+        var currentTab = "compartido"; 
+        var selectedFolderId = "";
+
+        function saveData() {
+            localStorage.setItem('doc_folders', JSON.stringify(folders));
+            localStorage.setItem('doc_files', JSON.stringify(files));
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById("tabCompartido").classList.remove("active");
+            document.getElementById("tabPersonal").classList.remove("active");
+            
+            if(tab === "compartido") document.getElementById("tabCompartido").classList.add("active");
+            else document.getElementById("tabPersonal").classList.add("active");
+
+            document.getElementById("folderTitle").textContent = "Carpetas en " + (tab === "compartido" ? "Compartido" : "Personal");
+
+            // Seleccionar automáticamente la primera carpeta de esta pestaña
+            var tabFolders = folders.filter(f => f.type === currentTab);
+            selectedFolderId = tabFolders.length > 0 ? tabFolders[0].id : "";
+
+            renderFolders();
+            renderFiles();
+        }
+
+        function renderFolders() {
+            var container = document.getElementById("foldersContainer");
+            var tabFolders = folders.filter(f => f.type === currentTab);
+            var html = "";
+
+            for (var i = 0; i < tabFolders.length; i++) {
+                var f = tabFolders[i];
+                var activeClass = f.id === selectedFolderId ? "active" : "";
+                html += '<div class="folder-card ' + activeClass + '" onclick="selectFolder(\'' + f.id + '\')">';
+                html += '  <div class="delete-folder-btn" onclick="deleteFolder(event, \'' + f.id + '\')">✕</div>';
+                html += '  <div class="folder-icon">📁</div>';
+                html += '  <div class="folder-name">' + f.name + '</div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+            updateUploadSubText();
+        }
+
+        function selectFolder(id) {
+            selectedFolderId = id;
+            renderFolders();
+            renderFiles();
+        }
+
+        function renderFiles() {
+            var container = document.getElementById("filesContainer");
+            var html = "";
+
+            if (!selectedFolderId) {
+                container.innerHTML = "<div style='text-align:center;padding:20px;color:#94A3B8;font-size:13px;'>Crea una carpeta primero para ver o subir archivos.</div>";
+                return;
+            }
+
+            var folderFiles = files.filter(f => f.folderId === selectedFolderId);
+
+            if (folderFiles.length === 0) {
+                container.innerHTML = "<div style='text-align:center;padding:20px;color:#94A3B8;font-size:13px;'>Esta carpeta está vacía.</div>";
+                return;
+            }
+
+            for (var i = 0; i < folderFiles.length; i++) {
+                var file = folderFiles[i];
+                var icon = file.name.endsWith('.xlsx') || file.name.endsWith('.xls') ? "🍏" : "📕";
+                // Asegurar que cada archivo tenga una ID única
+                var fileId = file.id || ("f_" + i + "_" + Date.now());
+                file.id = fileId; 
+                
+                html += '<div class="doc-item">';
+                html += '  <div class="doc-icon">' + icon + '</div>';
+                html += '  <div class="doc-info">';
+                html += '    <div class="doc-name">' + file.name + '</div>';
+                html += '    <div class="doc-meta">' + file.size + '</div>';
+                html += '  </div>';
+                html += '  <div class="action-btn share" onclick="shareFile(\'' + file.name + '\')">🔗</div>';
+                html += '  <div class="action-btn" onclick="alert(\'Abriendo: ' + file.name + '\')">👁️</div>';
+                html += '  <div class="action-btn delete" onclick="deleteFile(\'' + fileId + '\')">🗑️</div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function createNewFolder() {
+            var name = prompt("Introduce el nombre de la nueva carpeta:");
+            if (!name || name.trim() === "") return;
+
+            var newId = "f_" + Date.now();
+            folders.push({ id: newId, name: name.trim(), type: currentTab });
+            selectedFolderId = newId; // Enfocar la nueva carpeta
+
+            saveData();
+            renderFolders();
+            renderFiles();
+        }
+
+        function deleteFolder(event, folderId) {
+            event.stopPropagation(); // Evita que se seleccione la carpeta al pulsar la X
+            var folder = folders.find(f => f.id === folderId);
+            if (!folder) return;
+
+            if (confirm("¿Seguro que quieres eliminar la carpeta '" + folder.name + "' y todos sus archivos?")) {
+                // Eliminar archivos vinculados a la carpeta
+                files = files.filter(f => f.folderId !== folderId);
+                // Eliminar carpeta
+                folders = folders.filter(f => f.id !== folderId);
+                
+                // Si la carpeta borrada era la seleccionada, reasignamos el foco
+                if (selectedFolderId === folderId) {
+                    var tabFolders = folders.filter(f => f.type === currentTab);
+                    selectedFolderId = tabFolders.length > 0 ? tabFolders[0].id : "";
+                }
+
+                saveData();
+                renderFolders();
+                renderFiles();
+            }
+        }
+
+        function deleteFile(fileId) {
+            var file = files.find(f => f.id === fileId);
+            if (!file) return;
+
+            if (confirm("¿Eliminar el archivo '" + file.name + "'?")) {
+                files = files.filter(f => f.id !== fileId);
+                saveData();
+                renderFiles();
+            }
+        }
+
+        function shareFile(fileName) {
+            var text = "Comparto contigo el documento de Perelada: " + fileName;
+            var url = window.location.href; // Simula el link de la app/archivo actual
+            
+            // Usar la API nativa de compartir del móvil si está disponible
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Compartir Documento',
+                    text: text,
+                    url: url
+                }).catch(function(err) { console.log(err); });
+            } else {
+                // Alternativa: Menú rápido si se visualiza en navegador web normal
+                var opcion = prompt("¿Cómo deseas compartirlo?\n1. WhatsApp\n2. Email\n3. Copiar Mensaje", "1");
+                if (opcion === "1") {
+                    window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(text + " " + url), "_blank");
+                } else if (opcion === "2") {
+                    window.location.href = "mailto:?subject=Documento Perelada&body=" + encodeURIComponent(text + "\n\n" + url);
+                } else if (opcion === "3") {
+                    navigator.clipboard.writeText(text + " " + url);
+                    alert("¡Texto copiado al portapapeles!");
+                }
+            }
+        }
+
+        function triggerUpload() {
+            if (!selectedFolderId) {
+                alert("Por favor, seleccione o cree una carpeta antes de subir un archivo.");
+                return;
+            }
+            document.getElementById("fileInput").click();
+        }
+
+        function handleFileSelect(input) {
+            if (input.files.length === 0) return;
+            var file = input.files[0];
+            
+            // Convertir tamaño a formato legible
+            var sizeStr = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+            if (file.size < 1024 * 1024) sizeStr = (file.size / 1024).toFixed(0) + " KB";
+
+            // Guardar en la base de datos simulada
+            files.push({
+                id: "f_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+                name: file.name,
+                size: sizeStr,
+                folderId: selectedFolderId
+            });
+
+            saveData();
+            renderFiles();
+            alert("¡Archivo '" + file.name + "' subido con éxito!");
+            input.value = ""; // Limpiar input
+        }
+
+        function updateUploadSubText() {
+            var sub = document.getElementById("uploadSubText");
+            var folder = folders.find(f => f.id === selectedFolderId);
+            if (folder) {
+                sub.textContent = "Se guardará en: " + folder.name;
+            } else {
+                sub.textContent = "Crea una carpeta para empezar";
+            }
+        }
+
+        // Drag and drop cosmético e intuitivo para móvil/escritorio
+        var dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
+        dropZone.addEventListener('drop', function(e) { 
+            e.preventDefault(); 
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                document.getElementById("fileInput").files = e.dataTransfer.files;
+                handleFileSelect(document.getElementById("fileInput"));
+            }
+        });
+
+        function goTo(page) {
+            var routes = {
+                menu: "index.html",
+                calendario: "calendario.html",
+                kilometros: "kilometros.html",
+                tarifas: "tarifas.html",
+                documentos: "documentos.html",
+                promociones: "promociones.html",
+                notas: "notas.html",
+                sos_contactos: "sos_contactos.html",
+                valvula_escape: "valvula_escape.html",
+                relax_juegos: "relax_juegos.html",
+                enlaces: "enlaces.html",
+                ajustes: "ajustes.html",
+                login: "login.html"
+            };
+            if (routes[page]) window.location.href = routes[page];
+        }
+
+        // Inicializar mostrando la pestaña compartida por defecto
+        switchTab("compartido");
+    </script>
+</body>
+</html>

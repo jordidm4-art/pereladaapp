@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - Ajustes</title>
+    <style>
+        :root {
+            --bg: #F9FAFB;
+            --card: #FFFFFF;
+            --text: #1E293B;
+            --text2: #64748B;
+            --text3: #94A3B8;
+            --border: #F1F5F9;
+            --border2: #E2E8F0;
+            --primary: #1E40AF;
+            --primaryLight: #EFF6FF;
+            --orange: #F59E0B;
+            --orangeLight: #FEF3C7;
+            --green: #10B981;
+            --greenLight: #ECFDF5;
+            --red: #EF4444;
+            --redLight: #FEF2F2;
+            --purple: #8B5CF6;
+            --purpleLight: #F5F3FF;
+            --gray: #F1F5F9;
+            --shadow: rgba(0,0,0,0.05);
+        }
+        [data-theme="dark"] {
+            --bg: #0F172A;
+            --card: #1E293B;
+            --text: #F1F5F9;
+            --text2: #94A3B8;
+            --text3: #64748B;
+            --border: #334155;
+            --border2: #475569;
+            --primary: #3B82F6;
+            --primaryLight: #1E3A5F;
+            --orange: #FBBF24;
+            --orangeLight: #3D3A1E;
+            --green: #34D399;
+            --greenLight: #1E3A2E;
+            --red: #F87171;
+            --redLight: #3D1E1E;
+            --purple: #A78BFA;
+            --purpleLight: #2E1E3D;
+            --gray: #334155;
+            --shadow: rgba(0,0,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-top: 8px;
+        }
+        .back-btn {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--card);
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px var(--shadow);
+            margin-right: 12px;
+            color: var(--primary);
+            transition: background 0.3s;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: background 0.3s;
+        }
+        .avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+        .avatar {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            object-fit: cover;
+        }
+        .avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .avatar-edit {
+            position: absolute;
+            bottom: -2px; right: -2px;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: 2px solid var(--card);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .profile-info { flex: 1; }
+        .profile-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+        .profile-role {
+            font-size: 13px;
+            color: var(--text2);
+            margin-bottom: 4px;
+        }
+        .profile-meta {
+            font-size: 12px;
+            color: var(--text3);
+            line-height: 1.6;
+        }
+        .edit-profile-btn {
+            background: var(--primaryLight);
+            color: var(--primary);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Section */
+        .section { margin-bottom: 16px; }
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        /* Settings Card */
+        .settings-card {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px var(--shadow);
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-item:active { background: var(--gray); }
+
+        .setting-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+        .icon-blue { background: var(--primaryLight); }
+        .icon-orange { background: var(--orangeLight); }
+        .icon-green { background: var(--greenLight); }
+        .icon-red { background: var(--redLight); }
+        .icon-purple { background: var(--purpleLight); }
+        .icon-gray { background: var(--gray); }
+
+        .setting-content { flex: 1; }
+        .setting-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+        .setting-desc {
+            font-size: 12px;
+            color: var(--text3);
+        }
+        .setting-value {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text2);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .chevron {
+            font-size: 14px;
+            color: var(--text3);
+        }
+
+        /* Toggle */
+        .toggle {
+            width: 48px; height: 28px;
+            border-radius: 14px;
+            background: var(--border2);
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .toggle.on { background: var(--primary); }
+        .toggle-knob {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+            top: 2px; left: 2px;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .toggle.on .toggle-knob { transform: translateX(20px); }
+
+        /* Danger */
+        .danger-item .setting-label { color: var(--red); }
+        .danger-item .setting-desc { color: #FCA5A5; }
+
+        /* App info */
+        .app-info {
+            text-align: center;
+            padding: 24px 16px;
+            color: var(--text3);
+        }
+        .app-logo {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            background: var(--primary);
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+        .app-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 4px;
+        }
+        .app-version {
+            font-size: 12px;
+            color: var(--text3);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: var(--card);
+            padding: 10px 30px 24px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px var(--shadow);
+            z-index: 50;
+            transition: background 0.3s;
+        }
+        .nav-item {
+            font-size: 22px;
+            opacity: 0.5;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item.active {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-sheet {
+            background: var(--card);
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px 30px;
+            width: 100%;
+            max-width: 430px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            transition: background 0.3s;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .modal-sheet h2 {
+            font-size: 20px;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+        .modal-input, .modal-select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border2);
+            border-radius: 12px;
+            margin-bottom: 14px;
+            font-size: 15px;
+            color: var(--text);
+            font-family: inherit;
+            background: var(--card);
+            transition: border-color 0.2s, background 0.3s;
+        }
+        .modal-input:focus, .modal-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .modal-input::placeholder { color: var(--text3); }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-secondary {
+            background: var(--gray);
+            color: var(--text2);
+        }
+        .btn-danger {
+            background: var(--redLight);
+            color: var(--red);
+        }
+
+        /* Lang & Theme */
+        .lang-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .lang-option, .theme-option {
+            padding: 14px;
+            border: 2px solid var(--border2);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-option.selected, .theme-option.selected {
+            border-color: var(--primary);
+            background: var(--primaryLight);
+        }
+        .lang-flag { font-size: 24px; margin-bottom: 6px; }
+        .lang-name, .theme-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .theme-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .theme-icon { font-size: 28px; margin-bottom: 6px; }
+
+        /* Reorder */
+        .reorder-list { margin-bottom: 16px; }
+        .reorder-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: grab;
+            transition: background 0.3s, border 0.3s;
+        }
+        .reorder-item:active { cursor: grabbing; }
+        .reorder-handle {
+            font-size: 18px;
+            color: var(--text3);
+            margin-right: 12px;
+            cursor: grab;
+        }
+        .reorder-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-right: 12px;
+        }
+        .reorder-label {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Auto theme info */
+        .auto-info {
+            background: var(--primaryLight);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--primary);
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+        .sensor-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text3);
+            margin-bottom: 14px;
+        }
+        .sensor-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+        .sensor-dot.off { background: var(--text3); }
+
+        /* Photo upload */
+        .photo-upload-area {
+            width: 100%;
+            height: 140px;
+            border: 2px dashed var(--border2);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text3);
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .photo-upload-area:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .photo-upload-area.has-image {
+            border-style: solid;
+            border-color: var(--primary);
+        }
+        .photo-upload-area img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0; left: 0;
+        }
+        .photo-upload-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .photo-upload-icon { font-size: 32px; margin-bottom: 8px; }
+        .photo-upload-text { font-size: 13px; font-weight: 600; }
+        .photo-upload-hint { font-size: 11px; margin-top: 4px; }
+        #photoInput { display: none; }
+
+        /* Photo preview in modal */
+        .photo-preview-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .photo-preview {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: var(--primaryLight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+        }
+        .photo-preview img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .photo-preview-placeholder {
+            font-size: 36px;
+            color: var(--primary);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">&#8592;</button>
+        <h1>Ajustes</h1>
+    </div>
+
+    <!-- Profile -->
+    <div class="profile-card">
+        <div class="avatar-wrap">
+            <div class="avatar" id="userAvatar">
+                <span id="avatarText">A</span>
+                <img id="avatarImg" style="display:none;" alt="">
+            </div>
+            <div class="avatar-edit" onclick="openPhotoModal()">&#128247;</div>
+        </div>
+        <div class="profile-info">
+            <div class="profile-name" id="userName">Ana Garcia</div>
+            <div class="profile-role" id="userRole">Comercial - Equipo Perelada</div>
+            <div class="profile-meta" id="userMeta">
+                ana.garcia@perelada.com<br>
+                +34 612 345 678
+            </div>
+        </div>
+        <button class="edit-profile-btn" onclick="openProfileModal()">Editar</button>
+    </div>
+
+    <!-- Personal Data -->
+    <div class="section">
+        <div class="section-title">Datos personales</div>
+        <div class="settings-card">
+            <div class="setting-item" onclick="openProfileModal()">
+                <div class="setting-icon icon-blue">&#128100;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Perfil completo</div>
+                    <div class="setting-desc">Nombre, email, telefono, foto</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+            <div class="setting-item" onclick="openPhoneModal()">
+                <div class="setting-icon icon-green">&#128222;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Telefono</div>
+                    <div class="setting-desc" id="phoneDisplay">+34 612 345 678</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+            <div class="setting-item" onclick="openAddressModal()">
+                <div class="setting-icon icon-purple">&#127968;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Direccion</div>
+                    <div class="setting-desc" id="addressDisplay">Calle Mayor 15, Girona</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+            <div class="setting-item" onclick="openEmergencyModal()">
+                <div class="setting-icon icon-red">&#128657;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Contacto de emergencia</div>
+                    <div class="setting-desc" id="emergencyDisplay">Maria Garcia - +34 623 456 789</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- General -->
+    <div class="section">
+        <div class="section-title">General</div>
+        <div class="settings-card">
+            <div class="setting-item" onclick="openLanguageModal()">
+                <div class="setting-icon icon-blue">&#127760;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Idioma</div>
+                    <div class="setting-desc">Cambia el idioma de la app</div>
+                </div>
+                <div class="setting-value">
+                    <span id="currentLang">Espanol</span>
+                    <span class="chevron">&#8250;</span>
+                </div>
+            </div>
+            <div class="setting-item" onclick="openThemeModal()">
+                <div class="setting-icon icon-orange">&#127912;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Tema</div>
+                    <div class="setting-desc">Claro, oscuro o automatico</div>
+                </div>
+                <div class="setting-value">
+                    <span id="currentTheme">Claro</span>
+                    <span class="chevron">&#8250;</span>
+                </div>
+            </div>
+            <div class="setting-item" onclick="openReorderModal()">
+                <div class="setting-icon icon-purple">&#128260;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Ordenar secciones</div>
+                    <div class="setting-desc">Personaliza el menu principal</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+            <div class="setting-item">
+                <div class="setting-icon icon-green">&#128276;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Notificaciones</div>
+                    <div class="setting-desc">Alertas y avisos del equipo</div>
+                </div>
+                <div class="toggle on" id="toggleNotif" onclick="toggleSwitch(this)">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-icon icon-purple">&#128266;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Sonidos</div>
+                    <div class="setting-desc">Efectos de sonido en la app</div>
+                </div>
+                <div class="toggle" id="toggleSound" onclick="toggleSwitch(this)">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cuenta -->
+    <div class="section">
+        <div class="section-title">Cuenta</div>
+        <div class="settings-card">
+            <div class="setting-item" onclick="openPasswordModal()">
+                <div class="setting-icon icon-gray">&#128274;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Cambiar contrasena</div>
+                    <div class="setting-desc">Actualiza tu clave de acceso</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+            <div class="setting-item" onclick="openEmailModal()">
+                <div class="setting-icon icon-blue">&#9993;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Cambiar email</div>
+                    <div class="setting-desc">Actualiza tu correo corporativo</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+            <div class="setting-item" onclick="exportData()">
+                <div class="setting-icon icon-green">&#128190;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Exportar mis datos</div>
+                    <div class="setting-desc">Descarga tu informacion en Excel</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin (solo visible para admin) -->
+    <div class="section" id="adminSection" style="display:none;">
+        <div class="section-title">Administracion</div>
+        <div class="settings-card">
+            <div class="setting-item" onclick="goTo('admin-users')">
+                <div class="setting-icon icon-blue">&#128101;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Gestionar usuarios</div>
+                    <div class="setting-desc">Anadir, editar o eliminar miembros</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+            <div class="setting-item" onclick="goTo('admin-logs')">
+                <div class="setting-icon icon-orange">&#128203;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Registro de actividad</div>
+                    <div class="setting-desc">Quien entro, cuando y que hizo</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+            <div class="setting-item" onclick="goTo('admin-backup')">
+                <div class="setting-icon icon-green">&#128230;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Backup y restauracion</div>
+                    <div class="setting-desc">Copias de seguridad de datos</div>
+                </div>
+                <span class="chevron">&#8250;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Peligro -->
+    <div class="section">
+        <div class="section-title">Zona de peligro</div>
+        <div class="settings-card">
+            <div class="setting-item danger-item" onclick="confirmLogout()">
+                <div class="setting-icon icon-red">&#128682;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Cerrar sesion</div>
+                    <div class="setting-desc">Salir de la cuenta actual</div>
+                </div>
+                <span class="chevron" style="color:var(--red);">&#8250;</span>
+            </div>
+            <div class="setting-item danger-item" onclick="confirmDelete()">
+                <div class="setting-icon icon-red">&#128465;</div>
+                <div class="setting-content">
+                    <div class="setting-label">Eliminar cuenta</div>
+                    <div class="setting-desc">Borra permanentemente tu cuenta</div>
+                </div>
+                <span class="chevron" style="color:var(--red);">&#8250;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Info -->
+    <div class="app-info">
+        <div class="app-logo">P</div>
+        <div class="app-name">Perelada Girona Team</div>
+        <div class="app-version">Version 1.0.0 - Build 2026.05</div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">&#127968;</div>
+        <div class="nav-item" onclick="goTo('calendario')">&#128197;</div>
+        <div class="nav-item" onclick="goTo('notas')">&#128221;</div>
+        <div class="nav-item active">&#9881;</div>
+    </div>
+
+    <!-- Modal: Photo Upload -->
+    <div class="modal-overlay" id="photoModal">
+        <div class="modal-sheet">
+            <h2>Foto de perfil</h2>
+            <div class="photo-preview-wrap">
+                <div class="photo-preview" id="photoPreview">
+                    <span class="photo-preview-placeholder" id="photoPreviewPlaceholder">&#128100;</span>
+                    <img id="photoPreviewImg" style="display:none;" alt="">
+                </div>
+            </div>
+            <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('photoInput').click()">
+                <span class="photo-upload-icon">&#128247;</span>
+                <span class="photo-upload-text">Toca para subir foto</span>
+                <span class="photo-upload-hint">O usa la camara</span>
+                <img id="uploadPreviewImg" style="display:none;" alt="">
+                <div class="photo-upload-overlay" id="uploadOverlay" style="display:none;">Cambiar foto</div>
+            </div>
+            <input type="file" id="photoInput" accept="image/*" capture="user" onchange="handlePhotoUpload(event)">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('photoModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="savePhoto()">Guardar foto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Profile -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-sheet">
+            <h2>Editar perfil</h2>
+            <input type="text" class="modal-input" id="editName" placeholder="Nombre completo">
+            <input type="text" class="modal-input" id="editRole" placeholder="Cargo / Rol">
+            <input type="email" class="modal-input" id="editEmail" placeholder="Email corporativo">
+            <input type="tel" class="modal-input" id="editPhone" placeholder="Telefono (ej: +34 612 345 678)">
+            <input type="text" class="modal-input" id="editAddress" placeholder="Direccion">
+            <input type="text" class="modal-input" id="editEmergencyName" placeholder="Contacto emergencia - Nombre">
+            <input type="tel" class="modal-input" id="editEmergencyPhone" placeholder="Contacto emergencia - Telefono">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('profileModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveProfile()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Phone -->
+    <div class="modal-overlay" id="phoneModal">
+        <div class="modal-sheet">
+            <h2>Telefono</h2>
+            <input type="tel" class="modal-input" id="phoneInput" placeholder="+34 612 345 678">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('phoneModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="savePhone()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Address -->
+    <div class="modal-overlay" id="addressModal">
+        <div class="modal-sheet">
+            <h2>Direccion</h2>
+            <input type="text" class="modal-input" id="addressInput" placeholder="Calle, numero, ciudad, CP">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('addressModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveAddress()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Emergency Contact -->
+    <div class="modal-overlay" id="emergencyModal">
+        <div class="modal-sheet">
+            <h2>Contacto de emergencia</h2>
+            <input type="text" class="modal-input" id="emergencyNameInput" placeholder="Nombre completo">
+            <input type="tel" class="modal-input" id="emergencyPhoneInput" placeholder="Telefono">
+            <select class="modal-select" id="emergencyRelation">
+                <option value="">Relacion</option>
+                <option value="pareja">Pareja</option>
+                <option value="padre">Padre / Madre</option>
+                <option value="hermano">Hermano / Hermana</option>
+                <option value="amigo">Amigo / Amiga</option>
+                <option value="otro">Otro</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('emergencyModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveEmergency()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Language -->
+    <div class="modal-overlay" id="langModal">
+        <div class="modal-sheet">
+            <h2>Idioma</h2>
+            <div class="lang-grid">
+                <div class="lang-option selected" data-lang="es" onclick="selectLang(this)">
+                    <div class="lang-flag">&#127466;&#127480;</div>
+                    <div class="lang-name">Espanol</div>
+                </div>
+                <div class="lang-option" data-lang="ca" onclick="selectLang(this)">
+                    <div class="lang-flag">&#127462;&#127465;</div>
+                    <div class="lang-name">Catala</div>
+                </div>
+                <div class="lang-option" data-lang="en" onclick="selectLang(this)">
+                    <div class="lang-flag">&#127468;&#127463;</div>
+                    <div class="lang-name">English</div>
+                </div>
+                <div class="lang-option" data-lang="fr" onclick="selectLang(this)">
+                    <div class="lang-flag">&#127467;&#127479;</div>
+                    <div class="lang-name">Francais</div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('langModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveLanguage()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Theme -->
+    <div class="modal-overlay" id="themeModal">
+        <div class="modal-sheet">
+            <h2>Tema</h2>
+            <div class="theme-grid">
+                <div class="theme-option" data-theme="light" onclick="selectTheme(this)">
+                    <div class="theme-icon">&#127774;</div>
+                    <div class="theme-name">Claro</div>
+                </div>
+                <div class="theme-option" data-theme="dark" onclick="selectTheme(this)">
+                    <div class="theme-icon">&#127769;</div>
+                    <div class="theme-name">Oscuro</div>
+                </div>
+                <div class="theme-option selected" data-theme="auto" onclick="selectTheme(this)">
+                    <div class="theme-icon">&#128260;</div>
+                    <div class="theme-name">Auto</div>
+                </div>
+            </div>
+            <div class="auto-info" id="autoThemeInfo">
+                <strong>Modo automatico:</strong><br>
+                &#127774; <strong>Sensor de luz:</strong> Detecta luz ambiente (si el dispositivo lo permite)<br>
+                &#128338; <strong>Por horario:</strong> Oscuro de 20:00 a 07:00, claro el resto del dia
+            </div>
+            <div class="sensor-status" id="sensorStatus">
+                <div class="sensor-dot" id="sensorDot"></div>
+                <span id="sensorText">Sensor de luz: detectando...</span>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('themeModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveTheme()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Reorder Sections -->
+    <div class="modal-overlay" id="reorderModal">
+        <div class="modal-sheet">
+            <h2>Ordenar secciones</h2>
+            <p style="color:var(--text3);font-size:13px;margin-bottom:12px;">Arrastra para cambiar el orden del menu principal</p>
+            <div class="reorder-list" id="reorderList"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('reorderModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveOrder()">Guardar orden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Change Password -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal-sheet">
+            <h2>Cambiar contrasena</h2>
+            <input type="password" class="modal-input" id="oldPass" placeholder="Contrasena actual">
+            <input type="password" class="modal-input" id="newPass" placeholder="Nueva contrasena">
+            <input type="password" class="modal-input" id="confirmPass" placeholder="Repite nueva contrasena">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('passwordModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="savePassword()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Change Email -->
+    <div class="modal-overlay" id="emailModal">
+        <div class="modal-sheet">
+            <h2>Cambiar email</h2>
+            <input type="email" class="modal-input" id="newEmail" placeholder="Nuevo email corporativo">
+            <input type="password" class="modal-input" id="emailPass" placeholder="Contrasena para confirmar">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('emailModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveEmail()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm Logout -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-sheet">
+            <h2>Cerrar sesion</h2>
+            <p style="color:var(--text2);font-size:14px;margin-bottom:20px;">Seguro que quieres salir? Tendras que volver a introducir tu usuario y contrasena.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('logoutModal')">Cancelar</button>
+                <button class="btn btn-danger" onclick="doLogout()">Cerrar sesion</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm Delete -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-sheet">
+            <h2 style="color:var(--red);">Eliminar cuenta</h2>
+            <p style="color:var(--text2);font-size:14px;margin-bottom:20px;">Esta accion no se puede deshacer. Se borraran todos tus datos, notas personales y configuracion.</p>
+            <input type="password" class="modal-input" id="deletePass" placeholder="Introduce tu contrasena para confirmar">
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancelar</button>
+                <button class="btn btn-danger" onclick="doDelete()">Eliminar permanentemente</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== STATE ==========
+        var currentUser = {
+            name: 'Ana Garcia',
+            role: 'Comercial - Equipo Perelada',
+            email: 'ana.garcia@perelada.com',
+            phone: '+34 612 345 678',
+            address: 'Calle Mayor 15, Girona',
+            emergencyName: 'Maria Garcia',
+            emergencyPhone: '+34 623 456 789',
+            emergencyRelation: 'hermana',
+            isAdmin: false,
+            photo: null
+        };
+        var selectedLang = 'es';
+        var selectedTheme = 'auto';
+        var tempPhoto = null;
+        var sectionOrder = [
+            { id: 'calendario', label: 'Calendario', icon: '&#128197;', color: 'icon-blue' },
+            { id: 'km', label: 'Km Vehiculo', icon: '&#128663;', color: 'icon-orange' },
+            { id: 'tarifas', label: 'Tarifas', icon: '&#128176;', color: 'icon-green' },
+            { id: 'documentos', label: 'Documentos', icon: '&#128196;', color: 'icon-purple' },
+            { id: 'promociones', label: 'Promociones', icon: '&#127873;', color: 'icon-red' },
+            { id: 'notas', label: 'Notas', icon: '&#128221;', color: 'icon-blue' },
+            { id: 'sos', label: 'SOS / A quien llamar', icon: '&#128680;', color: 'icon-red' },
+            { id: 'relax', label: 'Relax / Juegos', icon: '&#127918;', color: 'icon-purple' },
+            { id: 'links', label: 'Links Externos', icon: '&#128279;', color: 'icon-orange' }
+        ];
+        var lightSensor = null;
+        var autoThemeInterval = null;
+
+        // ========== INIT ==========
+        function init() {
+            // Load from localStorage
+            var savedUser = localStorage.getItem('userData');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+            }
+            var savedTheme = localStorage.getItem('theme');
+            if (savedTheme) selectedTheme = savedTheme;
+            var savedOrder = localStorage.getItem('sectionOrder');
+            if (savedOrder) sectionOrder = JSON.parse(savedOrder);
+
+            updateProfileDisplay();
+            if (currentUser.isAdmin) {
+                document.getElementById('adminSection').style.display = 'block';
+            }
+            applyTheme();
+        }
+
+        function updateProfileDisplay() {
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role;
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('avatarText').textContent = currentUser.name.charAt(0).toUpperCase();
+
+            // Photo
+            if (currentUser.photo) {
+                document.getElementById('avatarImg').src = currentUser.photo;
+                document.getElementById('avatarImg').style.display = 'block';
+                document.getElementById('avatarText').style.display = 'none';
+            } else {
+                document.getElementById('avatarImg').style.display = 'none';
+                document.getElementById('avatarText').style.display = 'block';
+            }
+
+            document.getElementById('userMeta').innerHTML = currentUser.email + '<br>' + (currentUser.phone || 'Sin telefono');
+            document.getElementById('phoneDisplay').textContent = currentUser.phone || 'Sin telefono';
+            document.getElementById('addressDisplay').textContent = currentUser.address || 'Sin direccion';
+            var em = currentUser.emergencyName ? (currentUser.emergencyName + ' - ' + currentUser.emergencyPhone) : 'Sin contacto';
+            document.getElementById('emergencyDisplay').textContent = em;
+
+            document.getElementById('editName').value = currentUser.name;
+            document.getElementById('editRole').value = currentUser.role;
+            document.getElementById('editEmail').value = currentUser.email;
+            document.getElementById('editPhone').value = currentUser.phone;
+            document.getElementById('editAddress').value = currentUser.address;
+            document.getElementById('editEmergencyName').value = currentUser.emergencyName;
+            document.getElementById('editEmergencyPhone').value = currentUser.emergencyPhone;
+        }
+
+        function saveUserData() {
+            localStorage.setItem('userData', JSON.stringify(currentUser));
+        }
+
+        // ========== PHOTO ==========
+        function openPhotoModal() {
+            tempPhoto = currentUser.photo;
+            updatePhotoPreview();
+            openModal('photoModal');
+        }
+
+        function updatePhotoPreview() {
+            var preview = document.getElementById('photoPreview');
+            var placeholder = document.getElementById('photoPreviewPlaceholder');
+            var img = document.getElementById('photoPreviewImg');
+            var uploadArea = document.getElementById('photoUploadArea');
+            var uploadImg = document.getElementById('uploadPreviewImg');
+            var overlay = document.getElementById('uploadOverlay');
+
+            if (tempPhoto) {
+                img.src = tempPhoto;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+                uploadImg.src = tempPhoto;
+                uploadImg.style.display = 'block';
+                uploadArea.classList.add('has-image');
+                overlay.style.display = 'block';
+            } else {
+                img.style.display = 'none';
+                placeholder.style.display = 'block';
+                uploadImg.style.display = 'none';
+                uploadArea.classList.remove('has-image');
+                overlay.style.display = 'none';
+            }
+        }
+
+        function handlePhotoUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                tempPhoto = e.target.result;
+                updatePhotoPreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function savePhoto() {
+            currentUser.photo = tempPhoto;
+            saveUserData();
+            updateProfileDisplay();
+            closeModal('photoModal');
+            alert('Foto de perfil actualizada');
+        }
+
+        // ========== THEME ==========
+        function applyTheme() {
+            if (selectedTheme === 'auto') {
+                startAutoTheme();
+            } else if (selectedTheme === 'dark') {
+                stopAutoTheme();
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                stopAutoTheme();
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+
+        function startAutoTheme() {
+            stopAutoTheme();
+            checkAutoTheme();
+            autoThemeInterval = setInterval(checkAutoTheme, 30000);
+            if ('AmbientLightSensor' in window) {
+                try {
+                    lightSensor = new AmbientLightSensor({ frequency: 0.5 });
+                    lightSensor.onreading = function() {
+                        var lux = lightSensor.illuminance;
+                        var dot = document.getElementById('sensorDot');
+                        var txt = document.getElementById('sensorText');
+                        if (lux !== null) {
+                            dot.classList.remove('off');
+                            txt.textContent = 'Sensor de luz: ' + lux.toFixed(0) + ' lux';
+                            if (lux < 50) {
+                                document.documentElement.setAttribute('data-theme', 'dark');
+                            } else {
+                                document.documentElement.setAttribute('data-theme', 'light');
+                            }
+                        }
+                    };
+                    lightSensor.onerror = function() {
+                        document.getElementById('sensorDot').classList.add('off');
+                        document.getElementById('sensorText').textContent = 'Sensor de luz: no disponible (usando horario)';
+                    };
+                    lightSensor.start();
+                } catch(e) {
+                    document.getElementById('sensorDot').classList.add('off');
+                    document.getElementById('sensorText').textContent = 'Sensor de luz: no soportado (usando horario)';
+                }
+            } else {
+                document.getElementById('sensorDot').classList.add('off');
+                document.getElementById('sensorText').textContent = 'Sensor de luz: no disponible (usando horario)';
+            }
+        }
+
+        function stopAutoTheme() {
+            if (autoThemeInterval) {
+                clearInterval(autoThemeInterval);
+                autoThemeInterval = null;
+            }
+            if (lightSensor) {
+                try { lightSensor.stop(); } catch(e) {}
+                lightSensor = null;
+            }
+        }
+
+        function checkAutoTheme() {
+            var h = new Date().getHours();
+            var isDark = (h >= 20 || h < 7);
+            if (!lightSensor) {
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            }
+        }
+
+        // ========== NAVIGATION ==========
+        function goBack() { window.location.href = 'index.html'; }
+        function goTo(page) {
+            var routes = {
+                menu: "index.html",
+                calendario: "calendario.html",
+                kilometros: "kilometros.html",
+                tarifas: "tarifas.html",
+                documentos: "documentos.html",
+                promociones: "promociones.html",
+                notas: "notas.html",
+                sos_contactos: "sos_contactos.html",
+                valvula_escape: "valvula_escape.html",
+                relax_juegos: "relax_juegos.html",
+                enlaces: "enlaces.html",
+                ajustes: "ajustes.html",
+                login: "login.html"
+            };
+            if (routes[page]) window.location.href = routes[page];
+        }
+
+        // ========== TOGGLE ==========
+        function toggleSwitch(el) {
+            el.classList.toggle('on');
+            var isOn = el.classList.contains('on');
+            var id = el.id;
+            if (id === 'toggleNotif') console.log('Notificaciones:', isOn ? 'ON' : 'OFF');
+            else if (id === 'toggleSound') console.log('Sonidos:', isOn ? 'ON' : 'OFF');
+        }
+
+        // ========== MODALS ==========
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        function openProfileModal() { openModal('profileModal'); }
+        function openPhoneModal() {
+            document.getElementById('phoneInput').value = currentUser.phone;
+            openModal('phoneModal');
+        }
+        function openAddressModal() {
+            document.getElementById('addressInput').value = currentUser.address;
+            openModal('addressModal');
+        }
+        function openEmergencyModal() {
+            document.getElementById('emergencyNameInput').value = currentUser.emergencyName;
+            document.getElementById('emergencyPhoneInput').value = currentUser.emergencyPhone;
+            document.getElementById('emergencyRelation').value = currentUser.emergencyRelation;
+            openModal('emergencyModal');
+        }
+        function openLanguageModal() { openModal('langModal'); }
+        function openThemeModal() { openModal('themeModal'); }
+        function openPasswordModal() { openModal('passwordModal'); }
+        function openEmailModal() { openModal('emailModal'); }
+        function confirmLogout() { openModal('logoutModal'); }
+        function confirmDelete() { openModal('deleteModal'); }
+
+        // ========== PROFILE ==========
+        function saveProfile() {
+            var name = document.getElementById('editName').value.trim();
+            var role = document.getElementById('editRole').value.trim();
+            var email = document.getElementById('editEmail').value.trim();
+            var phone = document.getElementById('editPhone').value.trim();
+            var address = document.getElementById('editAddress').value.trim();
+            var emName = document.getElementById('editEmergencyName').value.trim();
+            var emPhone = document.getElementById('editEmergencyPhone').value.trim();
+            if (!name) { alert('Introduce un nombre'); return; }
+            currentUser.name = name;
+            currentUser.role = role;
+            currentUser.email = email;
+            currentUser.phone = phone;
+            currentUser.address = address;
+            currentUser.emergencyName = emName;
+            currentUser.emergencyPhone = emPhone;
+            saveUserData();
+            updateProfileDisplay();
+            closeModal('profileModal');
+            alert('Perfil actualizado');
+        }
+
+        function savePhone() {
+            currentUser.phone = document.getElementById('phoneInput').value.trim();
+            saveUserData();
+            updateProfileDisplay();
+            closeModal('phoneModal');
+            alert('Telefono actualizado');
+        }
+
+        function saveAddress() {
+            currentUser.address = document.getElementById('addressInput').value.trim();
+            saveUserData();
+            updateProfileDisplay();
+            closeModal('addressModal');
+            alert('Direccion actualizada');
+        }
+
+        function saveEmergency() {
+            var name = document.getElementById('emergencyNameInput').value.trim();
+            var phone = document.getElementById('emergencyPhoneInput').value.trim();
+            var relation = document.getElementById('emergencyRelation').value;
+            if (!name || !phone) { alert('Introduce nombre y telefono'); return; }
+            currentUser.emergencyName = name;
+            currentUser.emergencyPhone = phone;
+            currentUser.emergencyRelation = relation;
+            saveUserData();
+            updateProfileDisplay();
+            closeModal('emergencyModal');
+            alert('Contacto de emergencia guardado');
+        }
+
+        // ========== LANGUAGE ==========
+        function selectLang(el) {
+            var opts = document.querySelectorAll('#langModal .lang-option');
+            for (var i = 0; i < opts.length; i++) opts[i].classList.remove('selected');
+            el.classList.add('selected');
+            selectedLang = el.getAttribute('data-lang');
+        }
+        function saveLanguage() {
+            var names = { es: 'Espanol', ca: 'Catala', en: 'English', fr: 'Francais' };
+            document.getElementById('currentLang').textContent = names[selectedLang];
+            closeModal('langModal');
+            alert('Idioma cambiado a ' + names[selectedLang]);
+        }
+
+        // ========== THEME ==========
+        function updateThemeSelection() {
+            var opts = document.querySelectorAll('#themeModal .theme-option');
+            for (var i = 0; i < opts.length; i++) {
+                opts[i].classList.remove('selected');
+                if (opts[i].getAttribute('data-theme') === selectedTheme) {
+                    opts[i].classList.add('selected');
+                }
+            }
+        }
+        function selectTheme(el) {
+            var opts = document.querySelectorAll('#themeModal .theme-option');
+            for (var i = 0; i < opts.length; i++) opts[i].classList.remove('selected');
+            el.classList.add('selected');
+            selectedTheme = el.getAttribute('data-theme');
+        }
+        function saveTheme() {
+            var names = { light: 'Claro', dark: 'Oscuro', auto: 'Auto' };
+            document.getElementById('currentTheme').textContent = names[selectedTheme];
+            localStorage.setItem('theme', selectedTheme);
+            applyTheme();
+            closeModal('themeModal');
+            alert('Tema cambiado a ' + names[selectedTheme]);
+        }
+
+        // ========== REORDER ==========
+        function openReorderModal() {
+            renderReorderList();
+            openModal('reorderModal');
+        }
+        function renderReorderList() {
+            var html = '';
+            for (var i = 0; i < sectionOrder.length; i++) {
+                var s = sectionOrder[i];
+                html += '<div class="reorder-item" draggable="true" data-index="' + i + '">' +
+                    '<span class="reorder-handle">&#9776;</span>' +
+                    '<div class="reorder-icon ' + s.color + '">' + s.icon + '</div>' +
+                    '<div class="reorder-label">' + s.label + '</div>' +
+                    '</div>';
+            }
+            document.getElementById('reorderList').innerHTML = html;
+            setupDragAndDrop();
+        }
+        function setupDragAndDrop() {
+            var items = document.querySelectorAll('.reorder-item');
+            var dragSrc = null;
+            for (var i = 0; i < items.length; i++) {
+                items[i].addEventListener('dragstart', function(e) {
+                    dragSrc = this;
+                    e.dataTransfer.effectAllowed = 'move';
+                    this.style.opacity = '0.5';
+                });
+                items[i].addEventListener('dragend', function() {
+                    this.style.opacity = '1';
+                    dragSrc = null;
+                });
+                items[i].addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    return false;
+                });
+                items[i].addEventListener('dragenter', function() {
+                    this.style.background = 'var(--primaryLight)';
+                });
+                items[i].addEventListener('dragleave', function() {
+                    this.style.background = 'var(--card)';
+                });
+                items[i].addEventListener('drop', function(e) {
+                    e.stopPropagation();
+                    if (dragSrc !== this) {
+                        var srcIdx = parseInt(dragSrc.getAttribute('data-index'));
+                        var dstIdx = parseInt(this.getAttribute('data-index'));
+                        var temp = sectionOrder[srcIdx];
+                        sectionOrder[srcIdx] = sectionOrder[dstIdx];
+                        sectionOrder[dstIdx] = temp;
+                        renderReorderList();
+                    }
+                    return false;
+                });
+            }
+        }
+        function saveOrder() {
+            localStorage.setItem('sectionOrder', JSON.stringify(sectionOrder));
+            closeModal('reorderModal');
+            alert('Orden guardado. Se aplicara en el menu principal.');
+        }
+
+        // ========== PASSWORD ==========
+        function savePassword() {
+            var oldP = document.getElementById('oldPass').value;
+            var newP = document.getElementById('newPass').value;
+            var conf = document.getElementById('confirmPass').value;
+            if (!oldP || !newP || !conf) { alert('Rellena todos los campos'); return; }
+            if (newP !== conf) { alert('Las contrasenas no coinciden'); return; }
+            if (newP.length < 6) { alert('Minimo 6 caracteres'); return; }
+            closeModal('passwordModal');
+            document.getElementById('oldPass').value = '';
+            document.getElementById('newPass').value = '';
+            document.getElementById('confirmPass').value = '';
+            alert('Contrasena actualizada');
+        }
+
+        // ========== EMAIL ==========
+        function saveEmail() {
+            var email = document.getElementById('newEmail').value.trim();
+            var pass = document.getElementById('emailPass').value;
+            if (!email || !pass) { alert('Rellena todos los campos'); return; }
+            if (email.indexOf('@') === -1) { alert('Email no valido'); return; }
+            currentUser.email = email;
+            saveUserData();
+            updateProfileDisplay();
+            closeModal('emailModal');
+            document.getElementById('newEmail').value = '';
+            document.getElementById('emailPass').value = '';
+            alert('Email actualizado');
+        }
+
+        // ========== EXPORT ==========
+        function exportData() {
+            alert('Preparando descarga...\n(En produccion: genera Excel con tus datos)');
+        }
+
+        // ========== LOGOUT / DELETE ==========
+        function doLogout() {
+            closeModal('logoutModal');
+            localStorage.removeItem('currentUser');
+            alert('Sesion cerrada. Hasta pronto, ' + currentUser.name.split(' ')[0] + '!');
+            window.location.href = 'login.html';
+        }
+        function doDelete() {
+            var pass = document.getElementById('deletePass').value;
+            if (!pass) { alert('Introduce tu contrasena'); return; }
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('theme');
+            localStorage.removeItem('sectionOrder');
+            closeModal('deleteModal');
+            document.getElementById('deletePass').value = '';
+            alert('Cuenta eliminada.');
+            window.location.href = 'login.html';
+        }
+
+        // ========== CLOSE ON OVERLAY CLICK ==========
+        var overlays = document.querySelectorAll('.modal-overlay');
+        for (var i = 0; i < overlays.length; i++) {
+            overlays[i].addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        }
+
+        // ========== RUN ==========
+        init();
+    </script>
+</body>
+</html>

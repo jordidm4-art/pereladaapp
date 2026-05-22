@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - SOS Contactos Inteligente</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F0F0F0;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-top: 8px;
+        }
+        .header h1 { font-size: 24px; color: #2D2D2D; font-weight: 700; }
+        
+        .add-btn { font-size: 14px; color: #F06B4E; font-weight: 600; cursor: pointer; }
+
+        /* Contenedor del Buscador Asistente */
+        .search-box-container {
+            background: white;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .search-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #F06B4E;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 6px 10px;
+            gap: 10px;
+        }
+        .search-icon { font-size: 16px; color: #94A3B8; }
+        .search-input {
+            flex: 1; border: none; outline: none;
+            font-size: 14px; color: #2D2D2D; background: transparent;
+            height: 32px;
+        }
+
+        /* Botón de Micrófono por Voz */
+        .voice-btn {
+            width: 36px;
+            height: 36px;
+            background: #F1F5F9;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .voice-btn:active { background: #E2E8F0; }
+        .voice-btn.listening {
+            background: #FEE2E2;
+            color: #EF4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Lista de Fichas de Contacto */
+        .contact-list { display: flex; flex-direction: column; gap: 12px; }
+        .contact-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .card-top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .card-main-info { min-width: 0; flex: 1; }
+        .contact-fullname { font-size: 16px; font-weight: 700; color: #2D2D2D; margin-bottom: 2px; }
+        .contact-role { font-size: 13px; color: #64748B; font-weight: 600; }
+
+        /* Iconos de edición rápidos */
+        .contact-actions-quick {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .quick-action-btn {
+            background: transparent;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 4px;
+            transition: transform 0.1s;
+        }
+        .quick-action-btn:active { transform: scale(0.85); }
+
+        /* Fila de Accesos Directos de Comunicación */
+        .action-row {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #F1F5F9;
+            padding-top: 12px;
+            margin-top: 4px;
+        }
+        .action-link {
+            flex: 1; height: 38px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 600; text-decoration: none; gap: 6px;
+        }
+        .btn-call { background: #ECFDF5; color: #10B981; }
+        .btn-email { background: #EFF6FF; color: #3B82F6; }
+        .btn-teams { background: #F5F3FF; color: #8B5CF6; }
+
+        /* Ventana Emergente Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); display: none; justify-content: center;
+            align-items: flex-end; z-index: 2000;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: white; width: 100%; max-width: 430px;
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            padding: 20px; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-title { font-size: 18px; font-weight: 700; color: #2D2D2D; }
+        .close-modal { font-size: 20px; color: #94A3B8; cursor: pointer; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-row { display: flex; gap: 10px; }
+        .form-col { flex: 1; }
+        .form-label { display: block; font-size: 11px; font-weight: 600; color: #64748B; margin-bottom: 4px; text-transform: uppercase; }
+        .form-input { width: 100%; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; font-size: 13px; color: #2D2D2D; outline: none; }
+        .form-textarea { width: 100%; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; font-size: 13px; color: #2D2D2D; outline: none; height: 54px; resize: none; font-family: inherit; }
+
+        .modal-footer-btns { display: flex; gap: 10px; margin-top: 14px; }
+        .submit-btn { flex: 2; height: 44px; background: #F06B4E; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .delete-btn { flex: 1; height: 44px; background: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: none; }
+
+        /* Barra inferior unificada */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px;
+            background: white; padding: 10px 30px 24px; display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000;
+        }
+        .nav-item { font-size: 22px; cursor: pointer; color: #2D2D2D; text-decoration: none; opacity: 0.5; }
+        .nav-item.active { opacity: 1; color: #F06B4E; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>SOS Contactos</h1>
+        <div class="add-btn" onclick="openModal()">+ Añadir</div>
+    </div>
+
+    <div class="search-box-container">
+        <label class="search-label">¿Qué problema tienes o qué buscas?</label>
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" 
+                   placeholder="Ej: busco el comercial que gestiona girona..." 
+                   oninput="renderContacts()">
+            <button class="voice-btn" id="voiceBtn" onclick="startVoiceRecognition()" title="Buscar por voz">🎤</button>
+        </div>
+    </div>
+
+    <div class="contact-list" id="contactContainer"></div>
+
+    <div class="modal-overlay" id="contactModal" onclick="closeModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Nuevo Contacto Corporativo</div>
+                <div class="close-modal" onclick="closeModal(null)">✕</div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-col">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" id="newName" class="form-input" placeholder="Jordi">
+                </div>
+                <div class="form-col">
+                    <label class="form-label">Apellidos</label>
+                    <input type="text" id="newLastName" class="form-input" placeholder="Déu">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+                <label class="form-label">Cargo / Puesto</label>
+                <input type="text" id="newRole" class="form-input" placeholder="Comercial Zona Norte">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Teléfono móvil</label>
+                <input type="tel" id="newPhone" class="form-input" placeholder="600123456">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" id="newEmail" class="form-input" placeholder="jordi.deu@perelada.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Usuario o Email de Teams</label>
+                <input type="text" id="newTeams" class="form-input" placeholder="jordi.deu@perelada.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Palabras Clave Ocultas (separadas por comas)</label>
+                <textarea id="newKeywords" class="form-textarea" placeholder="comercial, girona, escala, monells, jordi, deu, ventas"></textarea>
+            </div>
+
+            <div class="modal-footer-btns">
+                <button class="delete-btn" id="btnDeleteContact" onclick="deleteContactFromModal()">🗑️ Borrar</button>
+                <button class="submit-btn" id="btnSaveContact" onclick="saveContact()">Registrar Contacto</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">&#127968;</div>
+        <div class="nav-item" onclick="goTo('calendario')">&#128197;</div>
+        <div class="nav-item" onclick="goTo('notas')">&#128221;</div>
+        <div class="nav-item" onclick="goTo('tarifas')">&#127991;</div>
+        <div class="nav-item" onclick="goTo('ajustes')">&#9881;</div>
+    </div>
+
+    <script>
+        var defaultContacts = [
+            {
+                id: 1, name: "Jordi", lastname: "Déu", role: "Comercial de Cuentas",
+                phone: "600456789", email: "jordi.deu@perelada.com", teams: "jordi.deu@perelada.com",
+                keywords: ["comercial", "girona", "escala", "monells", "jordi", "deu", "ventas", "vinos"]
+            },
+            {
+                id: 2, name: "Soporte Técnico", lastname: "IT", role: "Departamento de Sistemas",
+                phone: "972504311", email: "sistemas@perelada.com", teams: "sistemas@perelada.com",
+                keywords: ["internet", "ordenador", "servidor", "correo", "fallo", "problema", "it", "wifi", "app"]
+            }
+        ];
+
+        var contacts = JSON.parse(localStorage.getItem('sos_smart_contacts')) || defaultContacts;
+        var editingContactId = null;
+
+        function renderContacts() {
+            var container = document.getElementById("contactContainer");
+            var phrase = document.getElementById("searchInput").value.toLowerCase().trim();
+            var html = "";
+
+            var searchWords = phrase.split(/\s+/).filter(w => w.length > 2);
+
+            var filtered = contacts.filter(function(c) {
+                if (phrase === "") return true;
+                var blockText = (c.name + " " + c.lastname + " " + c.role + " " + (c.keywords ? c.keywords.join(" ") : "")).toLowerCase();
+                return searchWords.some(w => blockText.includes(w)) || blockText.includes(phrase);
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = "<div style='text-align:center;padding:40px;color:#94A3B8;font-size:14px;'>No hemos localizado ningún contacto para esa descripción.</div>";
+                return;
+            }
+
+            for (var i = 0; i < filtered.length; i++) {
+                var c = filtered[i];
+                var teamsLink = "https://teams.microsoft.com/l/chat/0/0?users=" + encodeURIComponent(c.teams);
+
+                html += '<div class="contact-card">';
+                html += '  <div class="card-top-header">';
+                html += '    <div class="card-main-info">';
+                html += '      <div class="contact-fullname">' + c.name + ' ' + c.lastname + '</div>';
+                html += '      <div class="contact-role">' + c.role + '</div>';
+                html += '    </div>';
+                // Añadidos los botones de gestión directa rápidos en cada ficha
+                html += '    <div class="contact-actions-quick">';
+                html += '       <button class="quick-action-btn" title="Editar contacto" onclick="editContact(' + c.id + ')">✏️</button>';
+                html += '       <button class="quick-action-btn" title="Borrar contacto" style="color:#EF4444;" onclick="quickDeleteContact(' + c.id + ')">🗑️</button>';
+                html += '    </div>';
+                html += '  </div>';
+                html += '  <div class="action-row">';
+                html += '    <a href="tel:' + c.phone + '" class="action-link btn-call">📞 Llamar</a>';
+                html += '    <a href="mailto:' + c.email + '" class="action-link btn-email">✉️ Correo</a>';
+                html += '    <a href="' + teamsLink + '" target="_blank" class="action-link btn-teams">💬 Teams</a>';
+                html += '  </div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        // Reconocimiento de Voz Nativo
+        function startVoiceRecognition() {
+            var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Lo siento, Señor. Este navegador o dispositivo no soporta el reconocimiento de voz nativo.");
+                return;
+            }
+            var recognition = new SpeechRecognition();
+            var voiceBtn = document.getElementById("voiceBtn");
+
+            recognition.lang = 'es-ES';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                voiceBtn.classList.add("listening");
+                voiceBtn.textContent = "🛑";
+            };
+            recognition.onerror = function(event) {
+                console.error("Error en reconocimiento de voz: ", event.error);
+                alert("Hubo un problema al escuchar. Por favor, asegúrese de dar permisos al micrófono.");
+            };
+            recognition.onend = function() {
+                voiceBtn.classList.remove("listening");
+                voiceBtn.textContent = "🎤";
+            };
+            recognition.onresult = function(event) {
+                var resultText = event.results[0][0].transcript;
+                document.getElementById("searchInput").value = resultText;
+                renderContacts();
+            };
+            recognition.start();
+        }
+
+        // Modales y CRUD
+        function openModal() { 
+            editingContactId = null;
+            document.getElementById("modalTitle").textContent = "Nuevo Contacto Corporativo";
+            document.getElementById("btnSaveContact").textContent = "Registrar Contacto";
+            document.getElementById("btnDeleteContact").style.display = "none";
+            
+            // Limpiar campos
+            document.getElementById("newName").value = "";
+            document.getElementById("newLastName").value = "";
+            document.getElementById("newRole").value = "";
+            document.getElementById("newPhone").value = "";
+            document.getElementById("newEmail").value = "";
+            document.getElementById("newTeams").value = "";
+            document.getElementById("newKeywords").value = "";
+
+            document.getElementById("contactModal").classList.add("show"); 
+        }
+
+        function closeModal(e) {
+            if (e === null || e.target === document.getElementById("contactModal")) {
+                document.getElementById("contactModal").classList.remove("show");
+                editingContactId = null;
+            }
+        }
+
+        function editContact(id) {
+            var c = contacts.find(item => item.id === id);
+            if (!c) return;
+
+            editingContactId = id;
+            document.getElementById("modalTitle").textContent = "Editar Contacto";
+            document.getElementById("btnSaveContact").textContent = "Guardar Cambios";
+            document.getElementById("btnDeleteContact").style.display = "block";
+
+            // Rellenar formulario con los datos existentes
+            document.getElementById("newName").value = c.name;
+            document.getElementById("newLastName").value = c.lastname;
+            document.getElementById("newRole").value = c.role;
+            document.getElementById("newPhone").value = c.phone;
+            document.getElementById("newEmail").value = c.email;
+            document.getElementById("newTeams").value = c.teams || c.email;
+            document.getElementById("newKeywords").value = c.keywords ? c.keywords.join(", ") : "";
+
+            document.getElementById("contactModal").classList.add("show");
+        }
+
+        function saveContact() {
+            var name = document.getElementById("newName").value.trim();
+            var lastname = document.getElementById("newLastName").value.trim();
+            var role = document.getElementById("newRole").value.trim();
+            var phone = document.getElementById("newPhone").value.trim();
+            var email = document.getElementById("newEmail").value.trim();
+            var teams = document.getElementById("newTeams").value.trim() || email;
+            var rawKeywords = document.getElementById("newKeywords").value.trim();
+
+            if (!name || !lastname || !role || !phone || !email) {
+                alert("Por favor, rellene todos los datos principales de la ficha corporativa.");
+                return;
+            }
+
+            var keywordsArr = rawKeywords.split(",").map(item => item.trim().toLowerCase()).filter(item => item !== "");
+            if (!keywordsArr.includes(name.toLowerCase())) keywordsArr.push(name.toLowerCase());
+            if (!keywordsArr.includes(lastname.toLowerCase())) keywordsArr.push(lastname.toLowerCase());
+
+            if (editingContactId) {
+                // Modo Edición
+                var c = contacts.find(item => item.id === editingContactId);
+                if (c) {
+                    c.name = name;
+                    c.lastname = lastname;
+                    c.role = role;
+                    c.phone = phone;
+                    c.email = email;
+                    c.teams = teams;
+                    c.keywords = keywordsArr;
+                }
+            } else {
+                // Modo Creación
+                contacts.push({
+                    id: Date.now(), name: name, lastname: lastname, role: role,
+                    phone: phone, email: email, teams: teams, keywords: keywordsArr
+                });
+            }
+
+            localStorage.setItem('sos_smart_contacts', JSON.stringify(contacts));
+            document.getElementById("contactModal").classList.remove("show");
+            editingContactId = null;
+            renderContacts();
+        }
+
+        // Eliminación rápida desde el botón de la tarjeta
+        function quickDeleteContact(id) {
+            if (confirm("¿Señor, está seguro de que desea eliminar este contacto de forma permanente?")) {
+                contacts = contacts.filter(item => item.id !== id);
+                localStorage.setItem('sos_smart_contacts', JSON.stringify(contacts));
+                renderContacts();
+            }
+        }
+
+        // Eliminación dentro del propio modal abierto
+        function deleteContactFromModal() {
+            if (editingContactId) {
+                quickDeleteContact(editingContactId);
+                document.getElementById("contactModal").classList.remove("show");
+                editingContactId = null;
+            }
+        }
+
+        function goTo(page) {
+            var routes = {
+                menu: "index.html",
+                calendario: "calendario.html",
+                kilometros: "kilometros.html",
+                tarifas: "tarifas.html",
+                documentos: "documentos.html",
+                promociones: "promociones.html",
+                notas: "notas.html",
+                sos_contactos: "sos_contactos.html",
+                valvula_escape: "valvula_escape.html",
+                relax_juegos: "relax_juegos.html",
+                enlaces: "enlaces.html",
+                ajustes: "ajustes.html",
+                login: "login.html"
+            };
+            if (routes[page]) window.location.href = routes[page];
+        }
+
+        renderContacts();
+    </script>
+</body>
+</html>

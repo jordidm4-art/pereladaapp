@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - Promociones</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F0F0F0;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-top: 8px;
+        }
+        .header h1 { font-size: 24px; color: #2D2D2D; font-weight: 700; }
+
+        /* Filtros superiores */
+        .promo-filter {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 3px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .filter-btn {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748B;
+            cursor: pointer;
+            border-radius: 9px;
+            transition: all 0.2s;
+        }
+        .filter-btn.active {
+            background: #F06B4E;
+            color: white;
+        }
+
+        /* Lista de Tarjetas de Promociones */
+        .promo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .promo-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+        }
+        
+        /* Decoración lateral según tipo */
+        .promo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: #F06B4E;
+            border-radius: 16px 0 0 16px;
+        }
+        .promo-card.proximas::before { background: #3B82F6; }
+        .promo-card.exclusivas::before { background: #8B5CF6; }
+
+        .promo-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .promo-tag {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: #FFF5F2;
+            color: #F06B4E;
+        }
+        .promo-card.proximas .promo-tag { background: #EFF6FF; color: #3B82F6; }
+        .promo-card.exclusivas .promo-tag { background: #F5F3FF; color: #8B5CF6; }
+
+        .promo-days { font-size: 11px; font-weight: 600; color: #64748B; }
+        .promo-title { font-size: 16px; font-weight: 700; color: #2D2D2D; }
+        .promo-desc { font-size: 13px; color: #475569; line-height: 1.4; }
+
+        /* Info de incentivo */
+        .promo-badge-box {
+            display: flex;
+            align-items: center;
+            background: #F8FAFC;
+            padding: 10px 12px;
+            border-radius: 10px;
+            gap: 8px;
+        }
+        .badge-icon { font-size: 18px; }
+        .badge-text { font-size: 13px; font-weight: 600; color: #1E293B; }
+        .badge-text span { color: #F06B4E; font-weight: 700; }
+
+        /* Documento adjunto en tarjeta */
+        .attached-file-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #F1F5F9;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #475569;
+            font-weight: 600;
+            align-self: flex-start;
+        }
+
+        /* Barra de herramientas / Botones visibles en tarjeta */
+        .promo-footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px dashed #E2E8F0;
+            padding-top: 12px;
+            margin-top: 4px;
+            gap: 8px;
+        }
+        .action-group-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .icon-action-btn {
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #64748B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            transition: color 0.15s;
+        }
+        .icon-action-btn:active { transform: scale(0.9); }
+        .icon-action-btn.delete:color { color: #EF4444; }
+
+        .action-btn {
+            background: #2D2D2D;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed; bottom: 90px; right: 16px; width: 56px; height: 56px; border-radius: 50%;
+            background: #F06B4E; color: white; border: none; font-size: 28px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(240,107,78,0.4); display: flex; align-items: center; justify-content: center; z-index: 100;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 2000; align-items: flex-end; justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-sheet {
+            background: white; border-radius: 24px 24px 0 0; padding: 24px 20px 30px;
+            width: 100%; max-width: 430px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-sheet h2 { font-size: 20px; color: #2D2D2D; margin-bottom: 16px; }
+        
+        .modal-input, .modal-textarea, .modal-select {
+            width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 12px;
+            margin-bottom: 12px; font-size: 14px; color: #2D2D2D; font-family: inherit;
+        }
+        .modal-row { display: flex; gap: 10px; }
+        .modal-row > div { flex: 1; }
+        .modal-row label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 600; }
+        
+        /* Zona de adjuntos en formulario */
+        .file-upload-zone {
+            border: 2px dashed #CBD5E1;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            background: #F8FAFC;
+            cursor: pointer;
+            margin-bottom: 14px;
+            font-size: 13px;
+            color: #64748B;
+            font-weight: 600;
+        }
+        .file-upload-zone:active { background: #EDF2F7; }
+
+        .btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-primary { background: #F06B4E; color: white; }
+        .btn-secondary { background: #F5F5F5; color: #666; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px;
+            background: white; padding: 10px 30px 24px; display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50;
+        }
+        .nav-item { font-size: 22px; cursor: pointer; color: #2D2D2D; text-decoration: none; opacity: 0.5; }
+        .nav-item.active { opacity: 1; color: #F06B4E; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Promociones</h1>
+    </div>
+
+    <div class="promo-filter">
+        <div class="filter-btn active" id="btn-activas" onclick="filterPromos('activas')">Activas</div>
+        <div class="filter-btn" id="btn-proximas" onclick="filterPromos('proximas')">Próximas</div>
+        <div class="filter-btn" id="btn-exclusivas" onclick="filterPromos('exclusivas')">Exclusivas</div>
+    </div>
+
+    <div class="promo-list" id="promoContainer">
+        </div>
+
+    <button class="fab" onclick="openModal()">+</button>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-sheet">
+            <h2 id="modalTitle">Nueva Promoción</h2>
+
+            <input type="text" class="modal-input" id="promoTitleInput" placeholder="Título de la campaña">
+            <textarea class="modal-textarea" style="min-height:70px;" id="promoDescInput" placeholder="Descripción completa..."></textarea>
+
+            <div class="modal-row">
+                <div>
+                    <label>Sección / Filtro</label>
+                    <select class="modal-select" id="promoTypeInput">
+                        <option value="activas">Activas</option>
+                        <option value="proximas">Próximas</option>
+                        <option value="exclusivas">Exclusivas</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Texto Etiqueta</label>
+                    <input type="text" class="modal-input" id="promoTagInput" placeholder="Ej: Activa">
+                </div>
+            </div>
+
+            <div class="modal-row">
+                <div>
+                    <label>Icono</label>
+                    <select class="modal-select" id="promoIconInput">
+                        <option value="🍷">🍷 Vino</option>
+                        <option value="⛳">⛳ Golf</option>
+                        <option value="⭐">⭐ Estrella</option>
+                        <option value="📊">📊 Gráfico</option>
+                        <option value="🎁">🎁 Regalo</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Contador / Plazo</label>
+                    <input type="text" class="modal-input" id="promoDaysInput" placeholder="Ej: Quedan 12 días">
+                </div>
+            </div>
+
+            <input type="text" class="modal-input" id="promoBadgeInput" placeholder="Incentivo: Comisión extra: <span>+5%</span>">
+            <input type="text" class="modal-input" id="promoDateInput" placeholder="Fecha: Válido hasta el 31 Mayo">
+
+            <label style="display:block; font-size:11px; color:#666; margin-bottom:4px; font-weight:600;">Documento Adjunto (PDF / Word)</label>
+            <div class="file-upload-zone" onclick="document.getElementById('fileAttachmentInput').click()">
+                <span id="uploadZoneText">📎 Pulsar para adjuntar documento</span>
+                <input type="file" id="fileAttachmentInput" style="display:none;" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" onchange="handleFileSelected(this)">
+            </div>
+
+            <div class="modal-buttons" style="display:flex; gap:10px;">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="savePromo()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">&#127968;</div>
+        <div class="nav-item" onclick="goTo('calendario')">&#128197;</div>
+        <div class="nav-item" onclick="goTo('notas')">&#128221;</div>
+        <div class="nav-item active">&#127991;</div>
+        <div class="nav-item" onclick="goTo('ajustes')">&#9881;</div>
+    </div>
+
+    <script>
+        var currentFilter = "activas";
+        var editingId = null;
+        var currentAttachedFileName = ""; // Guarda el nombre del archivo cargado
+
+        var promos = [
+            {
+                id: 1,
+                title: "Campaña Maridaje Primavera",
+                desc: "Incentivo especial por la venta cruzada de la gama alta de vinos con menús degustación de temporada.",
+                type: "activas",
+                tag: "Activa",
+                daysLeft: "Quedan 12 días",
+                badge: "Comisión extra: <span>+5%</span>",
+                icon: "🍷",
+                date: "Válido hasta el 31 Mayo",
+                fileName: "Bases_Primavera_2026.pdf"
+            },
+            {
+                id: 2,
+                title: "Descuento Corporativo Girona Golf",
+                desc: "Tarifa reducida exclusiva para miembros del equipo en green fees y reservas del resort de lunes a viernes.",
+                type: "activas",
+                tag: "Beneficio",
+                daysLeft: "Todo el año",
+                badge: "Descuento directo: <span>-20%</span>",
+                icon: "⛳",
+                date: "Válido durante 2026",
+                fileName: ""
+            }
+        ];
+
+        function renderPromos() {
+            var container = document.getElementById("promoContainer");
+            var html = "";
+
+            var filtered = promos.filter(p => p.type === currentFilter || (currentFilter === "proximas" && p.type === "proxima") || (currentFilter === "exclusivas" && p.type === "exclusiva"));
+
+            if (filtered.length === 0) {
+                container.innerHTML = "<div style='text-align:center;padding:40px;color:#94A3B8;font-size:14px;'>No hay promociones en esta sección.</div>";
+                return;
+            }
+
+            for (var i = 0; i < filtered.length; i++) {
+                var p = filtered[i];
+                var typeClass = p.type === "proxima" ? "proximas" : (p.type === "exclusiva" ? "exclusivas" : p.type);
+                
+                html += '<div class="promo-card ' + typeClass + '">';
+                html += '  <div class="promo-top">';
+                html += '    <span class="promo-tag">' + p.tag + '</span>';
+                html += '    <span class="promo-days">' + p.daysLeft + '</span>';
+                html += '  </div>';
+                html += '  <div class="promo-title">' + p.title + '</div>';
+                html += '  <div class="promo-desc">' + p.desc + '</div>';
+                html += '  <div class="promo-badge-box">';
+                html += '    <span class="badge-icon">' + p.icon + '</span>';
+                html += '    <div class="badge-text">' + p.badge + '</div>';
+                html += '  </div>';
+
+                // Si tiene un documento adjunto, se muestra la etiqueta
+                if (p.fileName) {
+                    html += '  <div class="attached-file-badge">📄 ' + p.fileName + '</div>';
+                }
+
+                // BARRA INFERIOR: Botones de Editar, Eliminar y Compartir completamente directos
+                html += '  <div class="promo-footer-actions">';
+                html += '    <div class="action-group-left">';
+                html += '       <button class="icon-action-btn" title="Editar" onclick="editPromo(' + p.id + ')">✏️</button>';
+                html += '       <button class="icon-action-btn" title="Eliminar" style="color:#EF4444;" onclick="deletePromo(' + p.id + ')">🗑️</button>';
+                html += '       <button class="icon-action-btn" title="Compartir" onclick="sharePromo(' + p.id + ')">🔗 Compartir</button>';
+                html += '    </div>';
+                html += '    <button class="action-btn" onclick="executeAction(\''+p.title+'\')">Detalles</button>';
+                html += '  </div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function filterPromos(filterType) {
+            currentFilter = filterType;
+            document.getElementById("btn-activas").classList.remove("active");
+            document.getElementById("btn-proximas").classList.remove("active");
+            document.getElementById("btn-exclusivas").classList.remove("active");
+            document.getElementById("btn-" + filterType).classList.add("active");
+            renderPromos();
+        }
+
+        // Gestión de subida de archivos
+        function handleFileSelected(input) {
+            if (input.files.length > 0) {
+                currentAttachedFileName = input.files[0].name;
+                document.getElementById("uploadZoneText").innerHTML = "✅ Adjuntado: <b style='color:#2D2D2D;'>" + currentAttachedFileName + "</b>";
+            }
+        }
+
+        // Formulario Modal (CRUD)
+        function openModal() {
+            editingId = null;
+            currentAttachedFileName = "";
+            document.getElementById("modalTitle").textContent = "Nueva Promoción";
+            document.getElementById("promoTitleInput").value = "";
+            document.getElementById("promoDescInput").value = "";
+            document.getElementById("promoTypeInput").value = currentFilter;
+            document.getElementById("promoTagInput").value = "";
+            document.getElementById("promoIconInput").value = "🍷";
+            document.getElementById("promoDaysInput").value = "";
+            document.getElementById("promoBadgeInput").value = "";
+            document.getElementById("promoDateInput").value = "";
+            document.getElementById("uploadZoneText").textContent = "📎 Pulsar para adjuntar documento";
+            document.getElementById("fileAttachmentInput").value = "";
+            
+            document.getElementById("modalOverlay").classList.add("show");
+        }
+
+        function closeModal() {
+            document.getElementById("modalOverlay").classList.remove("show");
+            editingId = null;
+        }
+
+        function savePromo() {
+            var title = document.getElementById("promoTitleInput").value.trim();
+            var desc = document.getElementById("promoDescInput").value.trim();
+            var type = document.getElementById("promoTypeInput").value;
+            var tag = document.getElementById("promoTagInput").value.trim() || "Campaña";
+            var icon = document.getElementById("promoIconInput").value;
+            var daysLeft = document.getElementById("promoDaysInput").value.trim() || "Disponible";
+            var badge = document.getElementById("promoBadgeInput").value.trim() || "Incentivo General";
+            var date = document.getElementById("promoDateInput").value.trim() || "Vigente";
+
+            if (!title || !desc) {
+                alert("Por favor, rellene el título y la descripción.");
+                return;
+            }
+
+            if (editingId) {
+                var p = promos.find(item => item.id === editingId);
+                if (p) {
+                    p.title = title; p.desc = desc; p.type = type; p.tag = tag;
+                    p.icon = icon; p.daysLeft = daysLeft; p.badge = badge; p.date = date;
+                    if(currentAttachedFileName) p.fileName = currentAttachedFileName;
+                }
+            } else {
+                var newId = promos.length > 0 ? Math.max(...promos.map(p => p.id)) + 1 : 1;
+                promos.push({
+                    id: newId, title: title, desc: desc, type: type, tag: tag,
+                    icon: icon, daysLeft: daysLeft, badge: badge, date: date,
+                    fileName: currentAttachedFileName
+                });
+            }
+
+            currentFilter = type;
+            filterPromos(currentFilter);
+            closeModal();
+        }
+
+        function editPromo(id) {
+            var p = promos.find(item => item.id === id);
+            if (!p) return;
+
+            editingId = id;
+            document.getElementById("modalTitle").textContent = "Editar Promoción";
+            document.getElementById("promoTitleInput").value = p.title;
+            document.getElementById("promoDescInput").value = p.desc;
+            var normType = p.type === "proxima" ? "proximas" : (p.type === "exclusiva" ? "exclusivas" : p.type);
+            document.getElementById("promoTypeInput").value = normType;
+            document.getElementById("promoTagInput").value = p.tag;
+            document.getElementById("promoIconInput").value = p.icon;
+            document.getElementById("promoDaysInput").value = p.daysLeft;
+            document.getElementById("promoBadgeInput").value = p.badge;
+            document.getElementById("promoDateInput").value = p.date;
+            
+            currentAttachedFileName = p.fileName || "";
+            if (p.fileName) {
+                document.getElementById("uploadZoneText").innerHTML = "📄 Archivo actual: <b style='color:#2D2D2D;'>" + p.fileName + "</b>";
+            } else {
+                document.getElementById("uploadZoneText").textContent = "📎 Pulsar para adjuntar documento";
+            }
+
+            document.getElementById("modalOverlay").classList.add("show");
+        }
+
+        function deletePromo(id) {
+            if (confirm("¿Señor, está seguro de que desea eliminar esta promoción?")) {
+                promos = promos.filter(p => p.id !== id);
+                renderPromos();
+            }
+        }
+
+        // Sistema unificado para compartir por WhatsApp, Teams y Mail nativo
+        function sharePromo(id) {
+            var p = promos.find(item => item.id === id);
+            if (!p) return;
+
+            // Limpiamos las etiquetas HTML del badge para el mensaje de texto plano
+            var cleanBadge = p.badge.replace(/<\/?[^>]+(>|$)/g, "");
+            var textToShare = "*Grup Perelada - Promoción Comercial*\n\n" +
+                              "📢 *Título:* " + p.title + "\n" +
+                              "📝 *Detalles:* " + p.desc + "\n" +
+                              "💰 *Incentivo:* " + cleanBadge + "\n" +
+                              "📅 *Validez:* " + p.date;
+            
+            if(p.fileName) {
+                textToShare += "\n📎 *Adjunto:* " + p.fileName;
+            }
+
+            // Uso de la API nativa de compartición móvil (Web Share API)
+            if (navigator.share) {
+                navigator.share({
+                    title: p.title,
+                    text: textToShare
+                }).catch(err => console.log(err));
+            } else {
+                // Alternativa clásica si se abre desde ordenadores/navegadores antiguos
+                var opt = prompt("¿Señor, por dónde desea compartir?\n1. WhatsApp\n2. Correo Electrónico (Mail)\n3. Copiar al Portapapeles (para Teams)");
+                if (opt === "1") {
+                    window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(textToShare), "_blank");
+                } else if (opt === "2") {
+                    window.location.href = "mailto:?subject=" + encodeURIComponent(p.title) + "&body=" + encodeURIComponent(textToShare);
+                } else if (opt === "3") {
+                    navigator.clipboard.writeText(textToShare);
+                    alert("Texto de la promoción copiado. Ya puede pegarlo en Teams, Señor.");
+                }
+            }
+        }
+
+        function executeAction(promoName) {
+            alert("Bases completas de la promoción:\n\"" + promoName + "\"");
+        }
+
+        function goTo(page) {
+            var routes = {
+                menu: "index.html",
+                calendario: "calendario.html",
+                kilometros: "kilometros.html",
+                tarifas: "tarifas.html",
+                documentos: "documentos.html",
+                promociones: "promociones.html",
+                notas: "notas.html",
+                sos_contactos: "sos_contactos.html",
+                valvula_escape: "valvula_escape.html",
+                relax_juegos: "relax_juegos.html",
+                enlaces: "enlaces.html",
+                ajustes: "ajustes.html",
+                login: "login.html"
+            };
+            if (routes[page]) window.location.href = routes[page];
+        }
+
+        document.getElementById("modalOverlay").addEventListener("click", function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        renderPromos();
+    </script>
+</body>
+</html>
