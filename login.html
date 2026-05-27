@@ -35,8 +35,8 @@
         
         .logo-container {
             width: 100%;
-            max-width: 280px;
-            margin-bottom: 10px;
+            max-width: 320px;
+            margin-bottom: 0px;
         }
 
         .logo-img {
@@ -140,9 +140,9 @@
 
     <div class="logo-area">
         <div class="logo-container">
-            <img src="https://www.perelada.com/images/logo-perelada.svg" alt="Perelada Logo" class="logo-img">
+            <img src="perelada_logo_transparent.png" alt="Perelada Logo" class="logo-img">
         </div>
-        <div class="logo-subtitle" id="viewTitle">GIRONA TEAM</div>
+        <div class="logo-subtitle" id="viewTitle" style="display:none;">GIRONA TEAM</div>
     </div>
 
     <form id="loginForm">
@@ -223,12 +223,14 @@
 
             if (isLoginMode) {
                 viewTitle.textContent = "GIRONA TEAM";
+                viewTitle.style.display = "none";
                 nameGroup.style.display = "none";
                 regName.required = false;
                 mainBtn.textContent = "Iniciar Sesión";
                 toggleModeBtn.textContent = "Crear cuenta nueva";
             } else {
                 viewTitle.textContent = "REGISTRO";
+                viewTitle.style.display = "block";
                 nameGroup.style.display = "block";
                 regName.required = true;
                 mainBtn.textContent = "Registrar mi Cuenta";
