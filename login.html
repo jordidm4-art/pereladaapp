@@ -171,23 +171,49 @@
         <a href="mailto:jordi.deu@pereladachivite.com?subject=Recuperar%20Contraseña%20App" class="link link-secondary">¿Has olvidado tu contraseña?</a>
     </div>
     
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAa3SSatDfkTwEToiu-0eh1z-1JLV-_AVo",
+            authDomain: "perelada-app.firebaseapp.com",
+            projectId: "perelada-app",
+            databaseURL: "https://perelada-app-default-rtdb.europe-west1.firebasedatabase.app",
+            storageBucket: "perelada-app.firebasestorage.app",
+            messagingSenderId: "103007022704",
+            appId: "1:103007022704:web:593a053e5872132d400eb5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Paleta de colores — se asigna automáticamente al registrarse
+        const COLORS = ['#3B82F6','#EF4444','#10B981','#F59E0B','#8B5CF6','#EC4899','#06B6D4','#84CC16'];
+
         let isLoginMode = true;
 
-        let usersDB = JSON.parse(localStorage.getItem('perelada_users_database'));
-        if (!usersDB) {
-            usersDB = [
-                { 
-                    email: 'jordi.deu@pereladachivite.com', 
-                    password: '1234', 
-                    name: 'Jordi Deu Mora', 
-                    role: 'admin'
-                }
-            ];
-            localStorage.setItem('perelada_users_database', JSON.stringify(usersDB));
+        // Asegurar que el admin existe en Firebase al cargar
+        async function initAdmin() {
+            const adminRef = ref(db, 'usuarios/jordi_deu_pereladachivite_com');
+            const snap = await get(adminRef);
+            if (!snap.exists()) {
+                await set(adminRef, {
+                    email: 'jordi.deu@pereladachivite.com',
+                    password: '1234',
+                    name: 'Jordi Deu Mora',
+                    role: 'admin',
+                    color: COLORS[0]
+                });
+            }
         }
-        
-        function switchMode() {
+        initAdmin();
+
+        function emailToKey(email) {
+            return email.replace(/[@.]/g, '_');
+        }
+
+        window.switchMode = function() {
             const viewTitle = document.getElementById('viewTitle');
             const nameGroup = document.getElementById('nameGroup');
             const mainBtn = document.getElementById('mainBtn');
@@ -210,54 +236,70 @@
             }
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const emailInput = document.getElementById('username').value.toLowerCase().trim();
             const passwordInput = document.getElementById('password').value;
             const regNameInput = document.getElementById('regName').value.trim();
-            
             const errorMsg = document.getElementById('errorMsg');
             const successMsg = document.getElementById('successMsg');
-            
+            const btn = document.getElementById('mainBtn');
+
+            btn.textContent = '...';
+            btn.disabled = true;
+
+            const key = emailToKey(emailInput);
+            const userRef = ref(db, 'usuarios/' + key);
+
             if (isLoginMode) {
-                const user = usersDB.find(u => u.email === emailInput && u.password === passwordInput);
-                
-                if (user) {
+                const snap = await get(userRef);
+                btn.textContent = 'Iniciar Sesión';
+                btn.disabled = false;
+
+                if (snap.exists() && snap.val().password === passwordInput) {
+                    const user = snap.val();
                     localStorage.setItem('currentUser', JSON.stringify(user));
-                    if (!localStorage.getItem('perelada_active_comercial_sheet')) {
-                        localStorage.setItem('perelada_active_comercial_sheet', user.name);
-                    }
                     window.location.href = 'index.html';
                 } else {
-                    errorMsg.textContent = "Correo o contraseña incorrectos, Señor.";
+                    errorMsg.textContent = "Correo o contraseña incorrectos.";
                     errorMsg.classList.add('show');
                     setTimeout(() => errorMsg.classList.remove('show'), 3000);
                 }
             } else {
-                const userExists = usersDB.some(u => u.email === emailInput);
-                
-                if (userExists) {
-                    errorMsg.textContent = "Este correo ya está registrado en el sistema.";
+                // Registro nuevo
+                const snap = await get(userRef);
+                if (snap.exists()) {
+                    btn.textContent = 'Registrar mi Cuenta';
+                    btn.disabled = false;
+                    errorMsg.textContent = "Este correo ya está registrado.";
                     errorMsg.classList.add('show');
                     setTimeout(() => errorMsg.classList.remove('show'), 3000);
                     return;
                 }
 
-                const newWorker = {
+                // Contar usuarios para asignar color
+                const allSnap = await get(ref(db, 'usuarios'));
+                const count = allSnap.exists() ? Object.keys(allSnap.val()).length : 0;
+                const color = COLORS[count % COLORS.length];
+
+                const newUser = {
                     email: emailInput,
                     password: passwordInput,
                     name: regNameInput,
-                    role: 'worker'
+                    role: 'worker',
+                    color: color
                 };
-                
-                usersDB.push(newWorker);
-                localStorage.setItem('perelada_users_database', JSON.stringify(usersDB));
-                
+
+                await set(userRef, newUser);
+
+                btn.textContent = 'Registrar mi Cuenta';
+                btn.disabled = false;
+                successMsg.textContent = '¡Cuenta creada! Ya puedes iniciar sesión.';
                 successMsg.classList.add('show');
                 setTimeout(() => {
                     successMsg.classList.remove('show');
-                    switchMode();
+                    window.switchMode();
                 }, 2000);
             }
         });
