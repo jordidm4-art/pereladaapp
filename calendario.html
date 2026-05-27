@@ -386,10 +386,8 @@
         </div>
     </div>
 
-    <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background: #3B82F6;"></div><span>Ana</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background: #EF4444;"></div><span>Maria</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background: #10B981;"></div><span>Juan</span></div>
+    <div class="legend" id="legendContainer">
+        <!-- Se rellena dinámicamente con los usuarios de Firebase -->
     </div>
 
     <div class="calendar-month" id="viewMonth">
@@ -482,11 +480,33 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const eventsRef = ref(db, 'calendario/events');
+        const usuariosRef = ref(db, 'usuarios');
 
-        // Escucha cambios en tiempo real — se actualiza para todos los usuarios
+        // Escucha cambios de eventos en tiempo real
         onValue(eventsRef, (snapshot) => {
             const data = snapshot.val();
             window.events = data ? Object.values(data) : [];
+            refreshAll();
+        });
+
+        // Escucha cambios de usuarios en tiempo real → actualiza leyenda y colores
+        onValue(usuariosRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+            const users = Object.values(data);
+            // Reconstruir mapa de colores
+            window.userColors = {};
+            users.forEach(u => { window.userColors[u.name] = u.color || '#999'; });
+            // Reconstruir leyenda visual
+            const legend = document.getElementById('legendContainer');
+            if (legend) {
+                legend.innerHTML = users.map(u =>
+                    `<div class="legend-item">
+                        <div class="legend-dot" style="background:${u.color || '#999'};"></div>
+                        <span>${u.name.split(' ')[0]}</span>
+                    </div>`
+                ).join('');
+            }
             refreshAll();
         });
 
@@ -510,7 +530,12 @@
         var selectedDate = todayStr; 
 
         var monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-        var userColors = { 'Ana': '#3B82F6', 'Maria': '#EF4444', 'Juan': '#10B981' };
+
+        // userColors se rellena dinámicamente desde Firebase (ver módulo superior)
+        window.userColors = {};
+
+        // Usuario logueado
+        var currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Invitado', color: '#999' };
 
         // Array global de eventos (Firebase lo rellena en tiempo real)
         window.events = [];
@@ -602,7 +627,7 @@
                     if (ev.type === 'vacation') {
                         var line = document.createElement('div');
                         line.className = 'vacation-line';
-                        line.style.backgroundColor = userColors[ev.user] || '#F06B4E';
+                        line.style.backgroundColor = window.userColors[ev.user] || '#F06B4E';
                         line.style.opacity = '0.4';
                         
                         if (dateStr === ev.date && dateStr === ev.endDate) line.classList.add('single');
@@ -625,7 +650,7 @@
                     if (ev.type === 'event') {
                         var dot = document.createElement('div');
                         dot.className = 'event-dot';
-                        dot.style.background = userColors[ev.user];
+                        dot.style.background = window.userColors[ev.user];
                         dotsDiv.appendChild(dot);
                     }
                 });
@@ -753,7 +778,7 @@
                     startTime: startTime,
                     endTime: endTime,
                     location: location,
-                    user: 'Ana',
+                    user: currentUser.name,
                     type: 'event',
                     guest: guestEmail
                 };
@@ -772,7 +797,7 @@
                     title: title,
                     date: document.getElementById('vacationStart').value,
                     endDate: document.getElementById('vacationEnd').value,
-                    user: 'Ana',
+                    user: currentUser.name,
                     type: 'vacation',
                     guest: ''
                 };
@@ -816,7 +841,7 @@
                 var dStr = ev.endDate ? ev.date + ' al ' + ev.endDate : ev.date;
                 var guestText = ev.guest ? ' | Invitado: ' + ev.guest : '';
                 html += '<div class="event-card" onclick="editEvent(' + ev.id + ')">' +
-                        '<div class="event-color" style="background:' + userColors[ev.user] + ';"></div>' +
+                        '<div class="event-color" style="background:' + window.userColors[ev.user] + ';"></div>' +
                         '<div class="event-info">' +
                         '<h3>' + ev.title + '</h3>' +
                         '<p>' + dStr + ' - Por: ' + ev.user + guestText + '</p>' +
