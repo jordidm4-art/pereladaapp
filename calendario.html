@@ -463,6 +463,42 @@
         <div class="nav-item" onclick="goTo('menu')">⚙️</div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAa3SSatDfkTwEToiu-0eh1z-1JLV-_AVo",
+            authDomain: "perelada-app.firebaseapp.com",
+            projectId: "perelada-app",
+            databaseURL: "https://perelada-app-default-rtdb.europe-west1.firebasedatabase.app",
+            storageBucket: "perelada-app.firebasestorage.app",
+            messagingSenderId: "103007022704",
+            appId: "1:103007022704:web:593a053e5872132d400eb5",
+            measurementId: "G-T699J5RY1J"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const eventsRef = ref(db, 'calendario/events');
+
+        // Escucha cambios en tiempo real — se actualiza para todos los usuarios
+        onValue(eventsRef, (snapshot) => {
+            const data = snapshot.val();
+            window.events = data ? Object.values(data) : [];
+            refreshAll();
+        });
+
+        // Guarda todos los eventos en Firebase
+        window.persistEvents = async function() {
+            const obj = {};
+            window.events.forEach(ev => { obj['ev_' + ev.id] = ev; });
+            await set(eventsRef, obj);
+        };
+
+    </script>
+
     <script>
         // Configuración automática del día de hoy al cargar la aplicación
         var todayObj = new Date();
@@ -476,12 +512,15 @@
         var monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
         var userColors = { 'Ana': '#3B82F6', 'Maria': '#EF4444', 'Juan': '#10B981' };
 
-        // Datos iniciales persistidos
-        var events = [
-            { id: 1, title: 'Reunión equipo', date: '2026-05-14', startTime: '10:00', endTime: '11:30', location: 'Sala A', user: 'Ana', type: 'event', guest: '' },
-            { id: 2, title: 'Vacaciones Maria', date: '2026-05-15', endDate: '2026-05-20', user: 'Maria', type: 'vacation', guest: '' },
-            { id: 3, title: 'Visita cliente', date: '2026-05-19', startTime: '14:00', endTime: '16:00', location: 'Oficina Bcn', user: 'Juan', type: 'event', guest: '' }
-        ];
+        // Array global de eventos (Firebase lo rellena en tiempo real)
+        window.events = [];
+        Object.defineProperty(window, 'events', { writable: true, configurable: true });
+
+        // persistEvents se define en el módulo Firebase de arriba
+        // Fallback por si Firebase no ha cargado aún
+        if (!window.persistEvents) {
+            window.persistEvents = async function() { console.warn('Firebase aún no listo'); };
+        }
 
         function switchView(view) {
             currentView = view;
@@ -549,7 +588,7 @@
             for (var day = 1; day <= daysInMonth; day++) {
                 var dateStr = currentYear + '-' + String(currentMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
                 
-                var dayEvents = events.filter(ev => checkInVacation(dateStr, ev));
+                var dayEvents = window.events.filter(ev => checkInVacation(dateStr, ev));
 
                 var dDiv = document.createElement('div');
                 dDiv.className = 'day';
@@ -608,7 +647,7 @@
             var dateStr = selectedDate || todayStr;
             header.innerHTML = '<div class="day-num">' + dateStr.split('-')[2] + '</div><div style="color:#666;">' + monthNames[parseInt(dateStr.split('-')[1])-1] + '</div>';
 
-            var dayEvents = events.filter(ev => checkInVacation(dateStr, ev));
+            var dayEvents = window.events.filter(ev => checkInVacation(dateStr, ev));
             
             if(dayEvents.length === 0) {
                 container.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Sin citas ni tareas hoy.</div>';
@@ -636,7 +675,7 @@
         }
 
         function editEvent(id) {
-            var ev = events.find(e => e.id === id);
+            var ev = window.events.find(e => e.id === id);
             if (!ev) return;
 
             openModal();
@@ -660,10 +699,11 @@
             toggleDateRange();
         }
 
-        function deleteCurrentEvent() {
+        async function deleteCurrentEvent() {
             var id = parseInt(document.getElementById('editingEventId').value);
             if(id) {
-                events = events.filter(ev => ev.id !== id);
+                window.events = window.events.filter(ev => ev.id !== id);
+                await persistEvents();
                 closeModal();
                 refreshAll();
             }
@@ -688,14 +728,14 @@
             document.getElementById('eventGuest').value = '';
         }
 
-        function saveEvent() {
+        async function saveEvent() {
             var title = document.getElementById('eventTitle').value;
             var type = document.getElementById('eventType').value;
             var id = document.getElementById('editingEventId').value;
 
             if(!title) return alert('Por favor, añada un título.');
 
-            if(id) events = events.filter(ev => ev.id !== parseInt(id));
+            if(id) window.events = window.events.filter(ev => ev.id !== parseInt(id));
 
             var newEvent = null;
 
@@ -718,7 +758,8 @@
                     guest: guestEmail
                 };
 
-                events.push(newEvent);
+                window.events.push(newEvent);
+                await persistEvents();
 
                 // Si se ha introducido un correo, se ejecuta la acción de invitar
                 if (guestEmail.trim() !== '') {
@@ -735,7 +776,8 @@
                     type: 'vacation',
                     guest: ''
                 };
-                events.push(newEvent);
+                window.events.push(newEvent);
+                await persistEvents();
             }
             closeModal();
             refreshAll();
@@ -770,7 +812,7 @@
             var list = document.getElementById('eventsList');
             if(!list) return;
             var html = '';
-            events.sort((a,b) => a.date.localeCompare(b.date)).forEach(ev => {
+            window.events.sort((a,b) => a.date.localeCompare(b.date)).forEach(ev => {
                 var dStr = ev.endDate ? ev.date + ' al ' + ev.endDate : ev.date;
                 var guestText = ev.guest ? ' | Invitado: ' + ev.guest : '';
                 html += '<div class="event-card" onclick="editEvent(' + ev.id + ')">' +
@@ -839,7 +881,7 @@
         }
 
         updateCalendarDisplay();
-        refreshAll();
+        refreshAll(); // Firebase onValue disparará refreshAll cuando carguen los datos
     </script>
 </body>
 </html>
