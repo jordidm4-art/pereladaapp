@@ -31,130 +31,136 @@
             border-radius: 12px;
             padding: 3px;
             margin-bottom: 16px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .view-btn {
             flex: 1;
-            text-align: center;
             padding: 10px;
+            border: none;
+            background: transparent;
+            color: #666;
             font-size: 14px;
             font-weight: 600;
-            color: #64748B;
-            cursor: pointer;
             border-radius: 9px;
+            cursor: pointer;
             transition: all 0.2s;
         }
         .view-btn.active {
-            background: #F06B4E;
+            background: #4A1525;
             color: white;
         }
 
-        /* Zona de Subida Ultra Fácil */
-        .upload-zone {
-            background: white;
-            border: 2px dashed #E2E8F0;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            margin-bottom: 20px;
-            transition: all 0.2s;
-        }
-        .upload-zone:active, .upload-zone.dragover {
-            border-color: #F06B4E;
-            background: #FFF5F2;
-        }
-        .upload-icon { font-size: 32px; margin-bottom: 8px; }
-        .upload-text { font-size: 14px; font-weight: 600; color: #2D2D2D; }
-        .upload-sub { font-size: 12px; color: #64748B; margin-top: 2px; }
-        #fileInput { display: none; }
-
-        /* Sección de Carpetas */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Ruta de navegación / Breadcrumb */
+        .breadcrumb {
+            font-size: 13px;
+            color: #666;
             margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 4px;
         }
-        .section-title { font-size: 15px; font-weight: 700; color: #2D2D2D; }
-        .add-folder-btn { font-size: 13px; color: #F06B4E; font-weight: 600; cursor: pointer; }
+        .breadcrumb span { color: #4A1525; font-weight: 600; cursor: pointer; }
 
-        .folder-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+        /* Barra de Acciones */
+        .actions-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
         }
-        .folder-card {
+        .btn-action {
+            flex: 1;
             background: white;
-            border-radius: 12px;
-            padding: 14px 8px;
-            text-align: center;
+            border: 1px solid #DDD;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            position: relative;
-            border: 1px solid transparent;
-        }
-        .folder-card.active {
-            border-color: #F06B4E;
-            background: #FFF5F2;
-        }
-        .folder-icon { font-size: 28px; margin-bottom: 4px; }
-        .folder-name { font-size: 12px; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        /* Botón de borrar carpeta integrado de forma sutil */
-        .delete-folder-btn {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 18px;
-            height: 18px;
-            background: rgba(239, 68, 68, 0.1);
-            color: #EF4444;
-            border-radius: 50%;
-            font-size: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .btn-action:active { background: #F9F9F9; }
+
+        /* Zona de soltar archivos (Drag & Drop) */
+        .drop-zone {
+            background: white;
+            border: 2px dashed #4A1525;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 16px;
             cursor: pointer;
+            transition: background 0.2s;
+        }
+        .drop-zone.dragover { background: #F5EAEF; }
+
+        /* Contenedor del Listado */
+        .explorer-list {
+            background: white;
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            min-height: 200px;
         }
 
-        /* Lista de Archivos */
-        .doc-list { display: flex; flex-direction: column; gap: 10px; }
-        .doc-item {
-            background: white;
-            border-radius: 12px;
-            padding: 12px;
+        .explorer-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #F5F5F5;
+            cursor: pointer;
         }
-        .doc-icon {
-            font-size: 22px; width: 40px; height: 40px; background: #F8FAFC;
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .doc-info { flex: 1; min-width: 0; }
-        .doc-name { font-size: 13px; font-weight: 600; color: #2D2D2D; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .doc-meta { font-size: 11px; color: #64748B; }
-        
-        .action-btn {
-            width: 32px; height: 32px; background: #F8FAFC; border: 1px solid #E2E8F0;
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            font-size: 14px; cursor: pointer; color: #475569; flex-shrink: 0;
-        }
-        .action-btn.delete { color: #EF4444; background: #FEF2F2; border-color: #FEE2E2; }
-        .action-btn.share { color: #2563EB; background: #EFF6FF; border-color: #DBEAFE; }
+        .explorer-item:last-child { border-bottom: none; }
+        .explorer-item:active { background: #FBFBFB; }
 
-        /* Barra inferior unificada */
+        .item-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .item-icon { font-size: 24px; }
+        .item-name { font-size: 14px; color: #333; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-meta { font-size: 11px; color: #999; margin-top: 2px; }
+
+        .item-actions { display: flex; gap: 4px; }
+        .btn-item-opt {
+            background: transparent; border: none; padding: 8px; font-size: 16px; cursor: pointer; color: #888;
+        }
+
+        .empty-state { text-align: center; color: #999; padding: 40px 20px; font-size: 14px; }
+
+        /* Modales */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal.show { display: flex; }
+        .modal-content { background: white; border-radius: 16px; padding: 20px; width: 100%; max-width: 360px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .modal-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 12px; }
+        .modal-input { width: 100%; padding: 12px; border: 1px solid #DDD; border-radius: 8px; font-size: 14px; margin-bottom: 16px; outline: none; }
+        .modal-input:focus { border-color: #4A1525; }
+        .modal-actions { display: flex; flex-direction: column; gap: 8px; }
+        
+        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
+        .btn-primary { background: #4A1525; color: white; }
+        .btn-secondary { background: #EEE; color: #333; }
+        .btn-danger { background: #D32F2F; color: white; }
+
+        /* Navegación Inferior */
         .bottom-nav {
             position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px;
-            background: white; padding: 10px 30px 24px; display: flex; justify-content: space-around; align-items: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000;
+            background: white; padding: 12px 24px 24px; display: flex; justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 900;
         }
-        .nav-item { font-size: 22px; cursor: pointer; color: #2D2D2D; text-decoration: none; opacity: 0.5; }
-        .nav-item.active { opacity: 1; color: #F06B4E; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; font-size: 11px; font-weight: 500; cursor: pointer; transition: color 0.2s; }
+        .nav-item span:first-child { font-size: 20px; }
+        .nav-item.active { color: #4A1525; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -164,253 +170,344 @@
     </div>
 
     <div class="view-switcher">
-        <div class="view-btn active" id="tabCompartido" onclick="switchTab('compartido')">Compartido</div>
-        <div class="view-btn" id="tabPersonal" onclick="switchTab('personal')">Personal</div>
+        <button class="view-btn active" id="btnTabCompartido" onclick="switchTab('compartido')">Compartido</button>
+        <button class="view-btn" id="btnTabPersonal" onclick="switchTab('personal')">Mi Espacio</button>
     </div>
 
-    <div class="upload-zone" onclick="triggerUpload()" id="dropZone">
-        <div class="upload-icon">📤</div>
-        <div class="upload-text">Toca para subir un archivo</div>
-        <div class="upload-sub" id="uploadSubText">Se guardará en la carpeta seleccionada</div>
-        <input type="file" id="fileInput" onchange="handleFileSelect(this)">
+    <div class="actions-bar">
+        <button class="btn-action" onclick="openNewFolderModal()">📁 Nueva Carpeta</button>
+        <button class="btn-action" onclick="triggerFileInput()">📤 Subir Archivo</button>
+        <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(this)">
     </div>
 
-    <div class="section-header">
-        <div class="section-title" id="folderTitle">Carpetas en Compartido</div>
-        <div class="add-folder-btn" onclick="createNewFolder()">+ Nueva Carpeta</div>
+    <div class="breadcrumb" id="breadcrumb">
+        <span onclick="navigatePath(-1)">Inicio</span>
     </div>
 
-    <div class="folder-grid" id="foldersContainer"></div>
+    <div class="drop-zone" id="dropZone" onclick="triggerFileInput()">
+        Arrastra archivos aquí o haz clic para subir
+    </div>
 
-    <div class="section-title" style="margin-bottom: 12px;" id="filesTitle">Archivos</div>
-    <div class="doc-list" id="filesContainer"></div>
+    <div class="explorer-list" id="explorerList">
+        </div>
+
+    <div class="modal" id="folderModal">
+        <div class="modal-content">
+            <div class="modal-title">Crear Nueva Carpeta</div>
+            <input type="text" id="folderNameInput" class="modal-input" placeholder="Nombre de la carpeta">
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="createNewFolderSubmit()">Crear</button>
+                <button class="btn btn-secondary" onclick="closeModal('folderModal')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="optionsModal">
+        <div class="modal-content">
+            <div class="modal-title" id="optionsModalTitle">Opciones del elemento</div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="btnShareFile" onclick="shareSelectedFile()">📤 Compartir Archivo Real</button>
+                <button class="btn btn-danger" onclick="deleteSelectedItem()">🗑️ Eliminar Definitivamente</button>
+                <button class="btn btn-secondary" onclick="closeModal('optionsModal')">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" onclick="goTo('menu')">&#127968;</div>
-        <div class="nav-item" onclick="goTo('calendario')">&#128197;</div>
-        <div class="nav-item" onclick="goTo('notas')">&#128221;</div>
-        <div class="nav-item" onclick="goTo('tarifas')">&#127991;</div>
-        <div class="nav-item" onclick="goTo('ajustes')">&#9881;</div>
+        <div class="nav-item" onclick="goTo('menu')"><span>🏠</span><span>Menú</span></div>
+        <div class="nav-item" onclick="goTo('calendario')"><span>📅</span><span>Calendario</span></div>
+        <div class="nav-item active"><span>📝</span><span>Documentos</span></div>
+        <div class="nav-item" onclick="goTo('ajustes')"><span>⚙️</span><span>Ajustes</span></div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAa3SSatDfkTwEToiu-0eh1z-1JLV-_AVo",
+            authDomain: "perelada-app.firebaseapp.com",
+            projectId: "perelada-app",
+            databaseURL: "https://perelada-app-default-rtdb.europe-west1.firebasedatabase.app",
+            storageBucket: "perelada-app.firebasestorage.app",
+            messagingSenderId: "103007022704",
+            appId: "1:103007022704:web:593a053e5872132d400eb5",
+            measurementId: "G-T699J5RY1J"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.dbRef = ref(db, 'documentos/estructura_archivos');
+
+        // Escucha en tiempo real de los cambios en los archivos
+        onValue(window.dbRef, (snapshot) => {
+            const data = snapshot.val();
+            window.fileSystem = data || [];
+            window.renderExplorer();
+        });
+
+        // Guardar estructura en Firebase
+        window.saveFileSystem = async function() {
+            await set(window.dbRef, window.fileSystem);
+        };
+    </script>
+
     <script>
-        // Cargar datos del LocalStorage o usar datos por defecto
-        var defaultFolders = [
-            { id: "c1", name: "Manuales", type: "compartido" },
-            { id: "c2", name: "Circulares", type: "compartido" },
-            { id: "p1", name: "Nominas", type: "personal" },
-            { id: "p2", name: "Contratos", type: "personal" }
-        ];
+        // CONFIGURACIÓN DE TU CUENTA DE CLOUDINARY RECIÉN CREADA
+        const CLOUD_NAME = "do4ikf0uy";
+        const UPLOAD_PRESET = "ml_default"; // Preset para subidas libres
 
-        var defaultFiles = [
-            { id: "f1", name: "Manual_Bienvenida_2026.pdf", size: "2.4 MB", folderId: "c1" },
-            { id: "f2", name: "Normativa_Seguridad.pdf", size: "1.1 MB", folderId: "c1" },
-            { id: "f3", name: "Nomina_Mayo.pdf", size: "145 KB", folderId: "p1" }
-        ];
+        // Recuperar el usuario logueado en la app
+        var currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Jordi Deu' };
 
-        var folders = JSON.parse(localStorage.getItem('doc_folders')) || defaultFolders;
-        var files = JSON.parse(localStorage.getItem('doc_files')) || defaultFiles;
-
-        var currentTab = "compartido"; 
-        var selectedFolderId = "";
-
-        function saveData() {
-            localStorage.setItem('doc_folders', JSON.stringify(folders));
-            localStorage.setItem('doc_files', JSON.stringify(files));
-        }
+        // Estado interno de la pantalla
+        var currentTab = 'compartido'; // compartido o personal
+        var currentPath = []; // Array de carpetas para saber dónde estamos dentro
+        window.fileSystem = []; // Base de datos local sincronizada
+        var selectedItemGlobal = null;
 
         function switchTab(tab) {
             currentTab = tab;
-            document.getElementById("tabCompartido").classList.remove("active");
-            document.getElementById("tabPersonal").classList.remove("active");
+            currentPath = [];
+            document.getElementById("btnTabCompartido").classList.remove("active");
+            document.getElementById("btnTabPersonal").classList.remove("active");
             
-            if(tab === "compartido") document.getElementById("tabCompartido").classList.add("active");
-            else document.getElementById("tabPersonal").classList.add("active");
-
-            document.getElementById("folderTitle").textContent = "Carpetas en " + (tab === "compartido" ? "Compartido" : "Personal");
-
-            // Seleccionar automáticamente la primera carpeta de esta pestaña
-            var tabFolders = folders.filter(f => f.type === currentTab);
-            selectedFolderId = tabFolders.length > 0 ? tabFolders[0].id : "";
-
-            renderFolders();
-            renderFiles();
-        }
-
-        function renderFolders() {
-            var container = document.getElementById("foldersContainer");
-            var tabFolders = folders.filter(f => f.type === currentTab);
-            var html = "";
-
-            for (var i = 0; i < tabFolders.length; i++) {
-                var f = tabFolders[i];
-                var activeClass = f.id === selectedFolderId ? "active" : "";
-                html += '<div class="folder-card ' + activeClass + '" onclick="selectFolder(\'' + f.id + '\')">';
-                html += '  <div class="delete-folder-btn" onclick="deleteFolder(event, \'' + f.id + '\')">✕</div>';
-                html += '  <div class="folder-icon">📁</div>';
-                html += '  <div class="folder-name">' + f.name + '</div>';
-                html += '</div>';
-            }
-            container.innerHTML = html;
-            updateUploadSubText();
-        }
-
-        function selectFolder(id) {
-            selectedFolderId = id;
-            renderFolders();
-            renderFiles();
-        }
-
-        function renderFiles() {
-            var container = document.getElementById("filesContainer");
-            var html = "";
-
-            if (!selectedFolderId) {
-                container.innerHTML = "<div style='text-align:center;padding:20px;color:#94A3B8;font-size:13px;'>Crea una carpeta primero para ver o subir archivos.</div>";
-                return;
-            }
-
-            var folderFiles = files.filter(f => f.folderId === selectedFolderId);
-
-            if (folderFiles.length === 0) {
-                container.innerHTML = "<div style='text-align:center;padding:20px;color:#94A3B8;font-size:13px;'>Esta carpeta está vacía.</div>";
-                return;
-            }
-
-            for (var i = 0; i < folderFiles.length; i++) {
-                var file = folderFiles[i];
-                var icon = file.name.endsWith('.xlsx') || file.name.endsWith('.xls') ? "🍏" : "📕";
-                // Asegurar que cada archivo tenga una ID única
-                var fileId = file.id || ("f_" + i + "_" + Date.now());
-                file.id = fileId; 
-                
-                html += '<div class="doc-item">';
-                html += '  <div class="doc-icon">' + icon + '</div>';
-                html += '  <div class="doc-info">';
-                html += '    <div class="doc-name">' + file.name + '</div>';
-                html += '    <div class="doc-meta">' + file.size + '</div>';
-                html += '  </div>';
-                html += '  <div class="action-btn share" onclick="shareFile(\'' + file.name + '\')">🔗</div>';
-                html += '  <div class="action-btn" onclick="alert(\'Abriendo: ' + file.name + '\')">👁️</div>';
-                html += '  <div class="action-btn delete" onclick="deleteFile(\'' + fileId + '\')">🗑️</div>';
-                html += '</div>';
-            }
-            container.innerHTML = html;
-        }
-
-        function createNewFolder() {
-            var name = prompt("Introduce el nombre de la nueva carpeta:");
-            if (!name || name.trim() === "") return;
-
-            var newId = "f_" + Date.now();
-            folders.push({ id: newId, name: name.trim(), type: currentTab });
-            selectedFolderId = newId; // Enfocar la nueva carpeta
-
-            saveData();
-            renderFolders();
-            renderFiles();
-        }
-
-        function deleteFolder(event, folderId) {
-            event.stopPropagation(); // Evita que se seleccione la carpeta al pulsar la X
-            var folder = folders.find(f => f.id === folderId);
-            if (!folder) return;
-
-            if (confirm("¿Seguro que quieres eliminar la carpeta '" + folder.name + "' y todos sus archivos?")) {
-                // Eliminar archivos vinculados a la carpeta
-                files = files.filter(f => f.folderId !== folderId);
-                // Eliminar carpeta
-                folders = folders.filter(f => f.id !== folderId);
-                
-                // Si la carpeta borrada era la seleccionada, reasignamos el foco
-                if (selectedFolderId === folderId) {
-                    var tabFolders = folders.filter(f => f.type === currentTab);
-                    selectedFolderId = tabFolders.length > 0 ? tabFolders[0].id : "";
-                }
-
-                saveData();
-                renderFolders();
-                renderFiles();
-            }
-        }
-
-        function deleteFile(fileId) {
-            var file = files.find(f => f.id === fileId);
-            if (!file) return;
-
-            if (confirm("¿Eliminar el archivo '" + file.name + "'?")) {
-                files = files.filter(f => f.id !== fileId);
-                saveData();
-                renderFiles();
-            }
-        }
-
-        function shareFile(fileName) {
-            var text = "Comparto contigo el documento de Perelada: " + fileName;
-            var url = window.location.href; // Simula el link de la app/archivo actual
+            if (tab === 'compartido') document.getElementById("btnTabCompartido").classList.add("active");
+            else document.getElementById("btnTabPersonal").classList.add("active");
             
-            // Usar la API nativa de compartir del móvil si está disponible
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Compartir Documento',
-                    text: text,
-                    url: url
-                }).catch(function(err) { console.log(err); });
-            } else {
-                // Alternativa: Menú rápido si se visualiza en navegador web normal
-                var opcion = prompt("¿Cómo deseas compartirlo?\n1. WhatsApp\n2. Email\n3. Copiar Mensaje", "1");
-                if (opcion === "1") {
-                    window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(text + " " + url), "_blank");
-                } else if (opcion === "2") {
-                    window.location.href = "mailto:?subject=Documento Perelada&body=" + encodeURIComponent(text + "\n\n" + url);
-                } else if (opcion === "3") {
-                    navigator.clipboard.writeText(text + " " + url);
-                    alert("¡Texto copiado al portapapeles!");
-                }
-            }
+            renderExplorer();
         }
 
-        function triggerUpload() {
-            if (!selectedFolderId) {
-                alert("Por favor, seleccione o cree una carpeta antes de subir un archivo.");
-                return;
-            }
+        function triggerFileInput() {
             document.getElementById("fileInput").click();
         }
 
-        function handleFileSelect(input) {
-            if (input.files.length === 0) return;
+        // CONTROLADOR DE SUBIDAS A CLOUDINARY
+        async function handleFileSelect(input) {
             var file = input.files[0];
+            if (!file) return;
+
+            var zone = document.getElementById('dropZone');
+            zone.textContent = "⏳ Subiendo archivo a la nube...";
+            zone.style.background = "#F9F6F7";
+
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', UPLOAD_PRESET);
             
-            // Convertir tamaño a formato legible
-            var sizeStr = (file.size / (1024 * 1024)).toFixed(1) + " MB";
-            if (file.size < 1024 * 1024) sizeStr = (file.size / 1024).toFixed(0) + " KB";
+            // Estructura limpia de carpetas virtuales en Cloudinary
+            var folderPrefix = currentTab === 'compartido' ? 'compartido/' : 'personal/' + currentUser.name + '/';
+            formData.append('folder', folderPrefix + currentPath.join('/'));
 
-            // Guardar en la base de datos simulada
-            files.push({
-                id: "f_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
-                name: file.name,
-                size: sizeStr,
-                folderId: selectedFolderId
-            });
+            try {
+                var response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                var data = await response.json();
 
-            saveData();
-            renderFiles();
-            alert("¡Archivo '" + file.name + "' subido con éxito!");
-            input.value = ""; // Limpiar input
-        }
-
-        function updateUploadSubText() {
-            var sub = document.getElementById("uploadSubText");
-            var folder = folders.find(f => f.id === selectedFolderId);
-            if (folder) {
-                sub.textContent = "Se guardará en: " + folder.name;
-            } else {
-                sub.textContent = "Crea una carpeta para empezar";
+                if (data.secure_url) {
+                    var newFile = {
+                        id: Date.now(),
+                        name: file.name,
+                        type: 'file',
+                        url: data.secure_url,
+                        publicId: data.public_id,
+                        tab: currentTab,
+                        owner: currentUser.name,
+                        path: JSON.stringify(currentPath),
+                        date: new Date().toLocaleDateString()
+                    };
+                    window.fileSystem.push(newFile);
+                    await window.saveFileSystem();
+                } else {
+                    alert("Error al subir archivo.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error de conexión con Cloudinary.");
+            } finally {
+                zone.textContent = "Arrastra archivos aquí o haz clic para subir";
+                zone.style.background = "white";
+                input.value = '';
             }
         }
 
-        // Drag and drop cosmético e intuitivo para móvil/escritorio
+        function openNewFolderModal() {
+            document.getElementById("folderModal").classList.add("show");
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove("show");
+        }
+
+        async function createNewFolderSubmit() {
+            var nameInput = document.getElementById("folderNameInput");
+            var name = nameInput.value.trim();
+            if (!name) return;
+
+            var newFolder = {
+                id: Date.now(),
+                name: name,
+                type: 'folder',
+                tab: currentTab,
+                owner: currentUser.name,
+                path: JSON.stringify(currentPath)
+            };
+
+            window.fileSystem.push(newFolder);
+            await window.saveFileSystem();
+            nameInput.value = '';
+            closeModal('folderModal');
+            renderExplorer();
+        }
+
+        // RENDERIZADO DEL EXPLORADOR
+        window.renderExplorer = function() {
+            var listContainer = document.getElementById("explorerList");
+            var breadcrumb = document.getElementById("breadcrumb");
+            listContainer.innerHTML = '';
+
+            // Dibujar ruta visual
+            var bHtml = `<span onclick="navigatePath(-1)">Inicio</span>`;
+            currentPath.forEach((p, index) => {
+                bHtml += ` ➔ <span onclick="navigatePath(${index})">${p}</span>`;
+            });
+            breadcrumb.innerHTML = bHtml;
+
+            // Filtrar los elementos por pestaña, ruta y privacidad
+            var currentItems = window.fileSystem.filter(item => {
+                if (item.tab !== currentTab) return false;
+                if (currentTab === 'personal' && item.owner !== currentUser.name) return false;
+                
+                var itemPath = JSON.parse(item.path || '[]');
+                return JSON.stringify(itemPath) === JSON.stringify(currentPath);
+            });
+
+            if (currentItems.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state">No hay archivos ni carpetas aquí todavía.</div>`;
+                return;
+            }
+
+            currentItems.forEach(item => {
+                var row = document.createElement("div");
+                row.className = "explorer-item";
+
+                var icon = item.type === 'folder' ? '📁' : getIconByExtension(item.name);
+                var subText = item.type === 'folder' ? 'Carpeta' : `${item.date} • por ${item.owner.split(' ')[0]}`;
+
+                row.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-icon">${icon}</div>
+                        <div class="min-width: 0;">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-meta">${subText}</div>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-item-opt">⋮</button>
+                    </div>
+                `;
+
+                // Clic en los tres puntitos
+                row.querySelector(".btn-item-opt").onclick = function(e) {
+                    e.stopPropagation();
+                    openOptionsModal(item);
+                };
+
+                // Clic en la fila
+                row.onclick = function() {
+                    if (item.type === 'folder') {
+                        currentPath.push(item.name);
+                        renderExplorer();
+                    } else {
+                        // Abre directamente en el navegador del móvil / aplicación visor
+                        window.open(item.url, '_blank');
+                    }
+                };
+
+                listContainer.appendChild(row);
+            });
+        }
+
+        function getIconByExtension(filename) {
+            var ext = filename.split('.').pop().toLowerCase();
+            if (['pdf'].includes(ext)) return '📕';
+            if (['xls', 'xlsx', 'csv'].includes(ext)) return '📊';
+            if (['doc', 'docx'].includes(ext)) return '📝';
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return '🖼️';
+            return '📄';
+        }
+
+        function navigatePath(index) {
+            if (index === -1) currentPath = [];
+            else currentPath = currentPath.slice(0, index + 1);
+            renderExplorer();
+        }
+
+        function openOptionsModal(item) {
+            selectedItemGlobal = item;
+            document.getElementById("optionsModalTitle").textContent = item.name;
+            
+            var btnShare = document.getElementById("btnShareFile");
+            if (item.type === 'folder') btnShare.style.display = 'none';
+            else btnShare.style.display = 'block';
+
+            document.getElementById("optionsModal").classList.add("show");
+        }
+
+        // COMPARTIR EL ARCHIVO DE VERDAD POR WHATSAPP, TEAMS, CORREO...
+        async function shareSelectedFile() {
+            if (!selectedItemGlobal) return;
+            closeModal('optionsModal');
+
+            if (!navigator.share) {
+                alert("Tu dispositivo móvil no permite compartir archivos directamente de forma nativa. URL: " + selectedItemGlobal.url);
+                return;
+            }
+
+            try {
+                // Descargamos el archivo temporalmente al teléfono en un Blob
+                var res = await fetch(selectedItemGlobal.url);
+                var blob = await res.blob();
+                var fileObj = new File([blob], selectedItemGlobal.name, { type: blob.type });
+
+                if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
+                    await navigator.share({
+                        files: [fileObj],
+                        title: selectedItemGlobal.name,
+                        text: 'Te envío el documento desde la App Comercial'
+                    });
+                } else {
+                    alert("Tu móvil no permite compartir este tipo de formato como archivo real.");
+                }
+            } catch (err) {
+                console.error("Error al empaquetar archivo para compartir:", err);
+            }
+        }
+
+        async function deleteSelectedItem() {
+            if (!selectedItemGlobal) return;
+
+            // Evitar borrar carpetas que tengan contenido dentro
+            if (selectedItemGlobal.type === 'folder') {
+                var contents = window.fileSystem.filter(i => {
+                    var p = JSON.parse(i.path || '[]');
+                    return p.includes(selectedItemGlobal.name);
+                });
+                if (contents.length > 0) {
+                    alert("No puedes eliminar una carpeta que contiene archivos dentro.");
+                    return;
+                }
+            }
+
+            window.fileSystem = window.fileSystem.filter(i => i.id !== selectedItemGlobal.id);
+            await window.saveFileSystem();
+            closeModal('optionsModal');
+            renderExplorer();
+        }
+
+        // Drag and Drop listeners visuales
         var dropZone = document.getElementById('dropZone');
         dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
         dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
@@ -427,23 +524,11 @@
             var routes = {
                 menu: "index.html",
                 calendario: "calendario.html",
-                kilometros: "kilometros.html",
-                tarifas: "tarifas.html",
                 documentos: "documentos.html",
-                promociones: "promociones.html",
-                notas: "notas.html",
-                sos_contactos: "sos_contactos.html",
-                valvula_escape: "valvula_escape.html",
-                relax_juegos: "relax_juegos.html",
-                enlaces: "enlaces.html",
-                ajustes: "ajustes.html",
-                login: "login.html"
+                ajustes: "ajustes.html"
             };
             if (routes[page]) window.location.href = routes[page];
         }
-
-        // Inicializar mostrando la pestaña compartida por defecto
-        switchTab("compartido");
     </script>
 </body>
 </html>
