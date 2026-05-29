@@ -336,12 +336,14 @@
             overlayText.textContent = 'Subiendo "' + file.name + '"...';
 
             try {
-                // Subir a Cloudinary
+                // Subir a Cloudinary con nombre original
                 const { CLOUD_NAME, UPLOAD_PRESET } = window._cloudinary;
+                const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const publicId = 'perelada/' + window._currentTab + '/' + Date.now() + '_' + safeFileName.replace(/\.[^.]+$/, '');
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', UPLOAD_PRESET);
-                formData.append('folder', 'perelada/' + window._currentTab);
+                formData.append('public_id', publicId);
 
                 const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
                     method: 'POST',
@@ -350,6 +352,8 @@
 
                 if (!res.ok) throw new Error('Error al subir a Cloudinary');
                 const data = await res.json();
+                // fl_attachment para que abra/descargue correctamente en móvil
+                const fileUrl = data.secure_url.replace('/upload/', '/upload/fl_attachment/');
 
                 const sizeStr = file.size < 1024*1024
                     ? (file.size/1024).toFixed(0) + ' KB'
@@ -359,7 +363,7 @@
                     id: 'file_' + Date.now(),
                     name: file.name,
                     size: sizeStr,
-                    url: data.secure_url,
+                    url: fileUrl,
                     folderId: window._selectedFolderId,
                     uploadedBy: (window._currentUser || {}).name || 'Usuario',
                     uploadedAt: new Date().toLocaleDateString('es-ES')
