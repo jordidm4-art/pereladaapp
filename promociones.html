@@ -315,19 +315,14 @@
                 overlayText.textContent = 'Subiendo "' + currentAttachedFile.name + '"...';
                 try {
                     var safeFileName = currentAttachedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-                    var publicId = 'perelada/promociones/' + Date.now() + '_' + safeFileName.replace(/\.[^.]+$/, '');
+                    var publicId = 'perelada/promociones/' + Date.now() + '_' + safeFileName;
                     var formData = new FormData();
                     formData.append('file', currentAttachedFile);
                     formData.append('upload_preset', UPLOAD_PRESET);
                     formData.append('public_id', publicId);
+                    formData.append('resource_type', 'auto');
 
-                    // Usar /raw/upload/ para documentos no-imagen (PDF, Word, Excel...)
-                    const ext = currentAttachedFile.name.split('.').pop().toLowerCase();
-                    const isImage = ['jpg','jpeg','png','gif','webp','svg'].includes(ext);
-                    const isVideo = ['mp4','mov','avi','mkv'].includes(ext);
-                    const resourceType = isImage ? 'image' : (isVideo ? 'video' : 'raw');
-
-                    var res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/' + resourceType + '/upload', { method: 'POST', body: formData });
+                    var res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/auto/upload', { method: 'POST', body: formData });
                     if (!res.ok) throw new Error('Error Cloudinary');
                     var data = await res.json();
                     fileUrl = data.secure_url;
