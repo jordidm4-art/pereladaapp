@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perelada - Documentos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F0F0F0;
+            min-height: 100vh;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-top: 8px; }
+        .header h1 { font-size: 24px; color: #2D2D2D; font-weight: 700; }
+
+        .view-switcher { display: flex; background: white; border-radius: 12px; padding: 3px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .view-btn { flex: 1; text-align: center; padding: 10px; font-size: 14px; font-weight: 600; color: #64748B; cursor: pointer; border-radius: 9px; transition: all 0.2s; }
+        .view-btn.active { background: #F06B4E; color: white; }
+
+        .upload-zone { background: white; border: 2px dashed #E2E8F0; border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 20px; transition: all 0.2s; }
+        .upload-zone:active, .upload-zone.dragover { border-color: #F06B4E; background: #FFF5F2; }
+        .upload-icon { font-size: 32px; margin-bottom: 8px; }
+        .upload-text { font-size: 14px; font-weight: 600; color: #2D2D2D; }
+        .upload-sub { font-size: 12px; color: #64748B; margin-top: 2px; }
+        #fileInput { display: none; }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-title { font-size: 15px; font-weight: 700; color: #2D2D2D; }
+        .add-folder-btn { font-size: 13px; color: #F06B4E; font-weight: 600; cursor: pointer; }
+
+        .folder-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .folder-card { background: white; border-radius: 12px; padding: 14px 8px; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; border: 1px solid transparent; }
+        .folder-card.active { border-color: #F06B4E; background: #FFF5F2; }
+        .folder-icon { font-size: 28px; margin-bottom: 4px; }
+        .folder-name { font-size: 12px; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .delete-folder-btn { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; background: rgba(239,68,68,0.1); color: #EF4444; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        .doc-list { display: flex; flex-direction: column; gap: 10px; }
+        .doc-item { background: white; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .doc-icon { font-size: 22px; width: 40px; height: 40px; background: #F8FAFC; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .doc-info { flex: 1; min-width: 0; }
+        .doc-name { font-size: 13px; font-weight: 600; color: #2D2D2D; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .doc-meta { font-size: 11px; color: #64748B; }
+        .action-btn { width: 32px; height: 32px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; color: #475569; flex-shrink: 0; }
+        .action-btn.delete { color: #EF4444; background: #FEF2F2; border-color: #FEE2E2; }
+        .action-btn.share { color: #2563EB; background: #EFF6FF; border-color: #DBEAFE; }
+        .action-btn.open { color: #10B981; background: #ECFDF5; border-color: #A7F3D0; }
+
+        /* Overlay de carga */
+        .upload-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+        .upload-overlay.show { display: flex; }
+        .upload-spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .upload-overlay-text { color: white; font-size: 15px; font-weight: 600; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: white; padding: 10px 30px 24px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
+        .nav-item { font-size: 22px; cursor: pointer; color: #2D2D2D; text-decoration: none; opacity: 0.5; }
+        .nav-item.active { opacity: 1; color: #F06B4E; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Documentos</h1>
+    </div>
+
+    <div class="view-switcher">
+        <div class="view-btn active" id="tabCompartido" onclick="switchTab('compartido')">Compartido</div>
+        <div class="view-btn" id="tabPersonal" onclick="switchTab('personal')">Personal</div>
+    </div>
+
+    <div class="upload-zone" onclick="triggerUpload()" id="dropZone">
+        <div class="upload-icon">📤</div>
+        <div class="upload-text">Toca para subir un archivo</div>
+        <div class="upload-sub" id="uploadSubText">Crea una carpeta para empezar</div>
+        <input type="file" id="fileInput" accept="*/*" onchange="handleFileSelect(this)">
+    </div>
+
+    <div class="section-header">
+        <div class="section-title" id="folderTitle">Carpetas en Compartido</div>
+        <div class="add-folder-btn" onclick="createNewFolder()">+ Nueva Carpeta</div>
+    </div>
+    <div class="folder-grid" id="foldersContainer"></div>
+
+    <div class="section-title" style="margin-bottom: 12px;">Archivos</div>
+    <div class="doc-list" id="filesContainer"></div>
+
+    <!-- Overlay de carga -->
+    <div class="upload-overlay" id="uploadOverlay">
+        <div class="upload-spinner"></div>
+        <div class="upload-overlay-text" id="overlayText">Subiendo archivo...</div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="goTo('menu')">&#127968;</div>
+        <div class="nav-item" onclick="goTo('calendario')">&#128197;</div>
+        <div class="nav-item" onclick="goTo('notas')">&#128221;</div>
+        <div class="nav-item" onclick="goTo('tarifas')">&#127991;</div>
+        <div class="nav-item" onclick="goTo('ajustes')">&#9881;</div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, get, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAa3SSatDfkTwEToiu-0eh1z-1JLV-_AVo",
+            authDomain: "perelada-app.firebaseapp.com",
+            projectId: "perelada-app",
+            databaseURL: "https://perelada-app-default-rtdb.europe-west1.firebasedatabase.app",
+            storageBucket: "perelada-app.firebasestorage.app",
+            messagingSenderId: "103007022704",
+            appId: "1:103007022704:web:593a053e5872132d400eb5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Usuario actual
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Invitado', email: 'invitado' };
+        const userKey = currentUser.email.replace(/[@.]/g, '_');
+
+        // Rutas Firebase
+        const sharedFoldersRef = ref(db, 'documentos/compartido/carpetas');
+        const sharedFilesRef   = ref(db, 'documentos/compartido/archivos');
+        const personalFoldersRef = ref(db, 'documentos/personal/' + userKey + '/carpetas');
+        const personalFilesRef   = ref(db, 'documentos/personal/' + userKey + '/archivos');
+
+        // Cloudinary config
+        const CLOUD_NAME   = 'do4ikf0uy';
+        const UPLOAD_PRESET = 'perelada_unsigned'; // Debes crear este preset en Cloudinary (unsigned)
+
+        window._db = db;
+        window._refs = { sharedFoldersRef, sharedFilesRef, personalFoldersRef, personalFilesRef };
+        window._cloudinary = { CLOUD_NAME, UPLOAD_PRESET };
+        window._userKey = userKey;
+        window._currentUser = currentUser;
+        window._firebase = { set, get, remove, ref };
+
+        // Escucha en tiempo real según pestaña activa
+        function listenTab(tab) {
+            const fRef = tab === 'compartido' ? sharedFoldersRef : personalFoldersRef;
+            const fiRef = tab === 'compartido' ? sharedFilesRef : personalFilesRef;
+
+            onValue(fRef, snap => {
+                window._folders = snap.val() ? Object.values(snap.val()) : [];
+                renderFolders();
+            });
+            onValue(fiRef, snap => {
+                window._allFiles = snap.val() ? Object.values(snap.val()) : [];
+                renderFiles();
+            });
+        }
+
+        window.listenTab = listenTab;
+
+        // Guardar carpeta
+        window.saveFolderToDB = async function(folder) {
+            const base = window._currentTab === 'compartido'
+                ? 'documentos/compartido/carpetas/'
+                : 'documentos/personal/' + userKey + '/carpetas/';
+            await set(ref(db, base + folder.id), folder);
+        };
+
+        // Eliminar carpeta y sus archivos
+        window.deleteFolderFromDB = async function(folderId) {
+            const base = window._currentTab === 'compartido'
+                ? 'documentos/compartido'
+                : 'documentos/personal/' + userKey;
+            await remove(ref(db, base + '/carpetas/' + folderId));
+            // Eliminar archivos de esa carpeta
+            const filesSnap = await get(ref(db, base + '/archivos'));
+            if (filesSnap.exists()) {
+                const allF = filesSnap.val();
+                for (const key of Object.keys(allF)) {
+                    if (allF[key].folderId === folderId) {
+                        await remove(ref(db, base + '/archivos/' + key));
+                    }
+                }
+            }
+        };
+
+        // Guardar archivo
+        window.saveFileToDB = async function(fileData) {
+            const base = window._currentTab === 'compartido'
+                ? 'documentos/compartido/archivos/'
+                : 'documentos/personal/' + userKey + '/archivos/';
+            await set(ref(db, base + fileData.id), fileData);
+        };
+
+        // Eliminar archivo
+        window.deleteFileFromDB = async function(fileId) {
+            const base = window._currentTab === 'compartido'
+                ? 'documentos/compartido/archivos/'
+                : 'documentos/personal/' + userKey + '/archivos/';
+            await remove(ref(db, base + fileId));
+        };
+
+        // Iniciar escucha
+        listenTab('compartido');
+    </script>
+
+    <script>
+        window._currentTab = 'compartido';
+        window._folders = [];
+        window._allFiles = [];
+        window._selectedFolderId = '';
+
+        function getFileIcon(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            const map = { pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', ppt: '📋', pptx: '📋', jpg: '🖼️', jpeg: '🖼️', png: '🖼️', gif: '🖼️', mp4: '🎬', mov: '🎬', mp3: '🎵', zip: '🗜️', rar: '🗜️' };
+            return map[ext] || '📎';
+        }
+
+        function switchTab(tab) {
+            window._currentTab = tab;
+            window._selectedFolderId = '';
+            document.getElementById('tabCompartido').classList.toggle('active', tab === 'compartido');
+            document.getElementById('tabPersonal').classList.toggle('active', tab === 'personal');
+            document.getElementById('folderTitle').textContent = 'Carpetas en ' + (tab === 'compartido' ? 'Compartido' : 'Personal');
+            if (window.listenTab) window.listenTab(tab);
+        }
+
+        function renderFolders() {
+            const container = document.getElementById('foldersContainer');
+            const tabFolders = (window._folders || []);
+            if (tabFolders.length === 0) {
+                container.innerHTML = '<div style="grid-column:span 3;text-align:center;padding:16px;color:#94A3B8;font-size:13px;">Sin carpetas todavía</div>';
+                if (!window._selectedFolderId) updateUploadSubText();
+                return;
+            }
+            if (!window._selectedFolderId) window._selectedFolderId = tabFolders[0].id;
+            container.innerHTML = tabFolders.map(f => `
+                <div class="folder-card ${f.id === window._selectedFolderId ? 'active' : ''}" onclick="selectFolder('${f.id}')">
+                    <div class="delete-folder-btn" onclick="deleteFolder(event,'${f.id}')">✕</div>
+                    <div class="folder-icon">📁</div>
+                    <div class="folder-name">${f.name}</div>
+                </div>`).join('');
+            updateUploadSubText();
+        }
+
+        function selectFolder(id) {
+            window._selectedFolderId = id;
+            renderFolders();
+            renderFiles();
+        }
+
+        function renderFiles() {
+            const container = document.getElementById('filesContainer');
+            const folderFiles = (window._allFiles || []).filter(f => f.folderId === window._selectedFolderId);
+            if (!window._selectedFolderId) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">Selecciona una carpeta para ver archivos.</div>';
+                return;
+            }
+            if (folderFiles.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">Esta carpeta está vacía.</div>';
+                return;
+            }
+            container.innerHTML = folderFiles.map(file => `
+                <div class="doc-item">
+                    <div class="doc-icon">${getFileIcon(file.name)}</div>
+                    <div class="doc-info">
+                        <div class="doc-name">${file.name}</div>
+                        <div class="doc-meta">${file.size} · ${file.uploadedBy || ''}</div>
+                    </div>
+                    <div class="action-btn open" onclick="openFile('${file.url}','${file.name}')">👁️</div>
+                    <div class="action-btn share" onclick="shareFile('${file.url}','${file.name}')">🔗</div>
+                    <div class="action-btn delete" onclick="deleteFile('${file.id}')">🗑️</div>
+                </div>`).join('');
+        }
+
+        function createNewFolder() {
+            const name = prompt('Nombre de la nueva carpeta:');
+            if (!name || !name.trim()) return;
+            const newFolder = { id: 'folder_' + Date.now(), name: name.trim() };
+            window._selectedFolderId = newFolder.id;
+            if (window.saveFolderToDB) window.saveFolderToDB(newFolder);
+        }
+
+        function deleteFolder(event, folderId) {
+            event.stopPropagation();
+            const folder = (window._folders || []).find(f => f.id === folderId);
+            if (!folder) return;
+            if (confirm('¿Eliminar la carpeta "' + folder.name + '" y todos sus archivos?')) {
+                if (window._selectedFolderId === folderId) window._selectedFolderId = '';
+                if (window.deleteFolderFromDB) window.deleteFolderFromDB(folderId);
+            }
+        }
+
+        function deleteFile(fileId) {
+            const file = (window._allFiles || []).find(f => f.id === fileId);
+            if (!file) return;
+            if (confirm('¿Eliminar "' + file.name + '"?')) {
+                if (window.deleteFileFromDB) window.deleteFileFromDB(fileId);
+            }
+        }
+
+        function fixCloudinaryUrl(url) {
+            if (!url) return url;
+            url = url.replace('/image/upload/fl_attachment/', '/raw/upload/');
+            url = url.replace('/image/upload/', '/raw/upload/');
+            url = url.replace('/auto/upload/fl_attachment/', '/raw/upload/');
+            url = url.replace('/auto/upload/', '/raw/upload/');
+            url = url.replace('/fl_attachment/', '/');
+            return url;
+        }
+
+        function openFile(url, name) {
+            if (!url) return;
+            window.open(fixCloudinaryUrl(url), '_blank');
+        }
+
+        function shareFile(url, name) {
+            if (!url) { alert('Este archivo no tiene URL disponible.'); return; }
+            var fixedUrl = fixCloudinaryUrl(url);
+            if (navigator.share) {
+                navigator.share({ title: name, text: 'Documento Perelada: ' + name, url: fixedUrl })
+                    .catch(err => console.log(err));
+            } else {
+                navigator.clipboard.writeText(fixedUrl);
+                alert('Enlace copiado al portapapeles:\n' + fixedUrl);
+            }
+        }
+
+        function triggerUpload() {
+            if (!window._selectedFolderId) {
+                alert('Selecciona o crea una carpeta primero.');
+                return;
+            }
+            document.getElementById('fileInput').click();
+        }
+
+        async function handleFileSelect(input) {
+            if (!input.files.length) return;
+            const file = input.files[0];
+            input.value = '';
+
+            const overlay = document.getElementById('uploadOverlay');
+            const overlayText = document.getElementById('overlayText');
+            overlay.classList.add('show');
+            overlayText.textContent = 'Subiendo "' + file.name + '"...';
+
+            try {
+                // Subir a Cloudinary con nombre original
+                const { CLOUD_NAME, UPLOAD_PRESET } = window._cloudinary;
+                const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const publicId = 'perelada/' + window._currentTab + '/' + Date.now() + '_' + safeFileName.replace(/\.[^.]+$/, '');
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', UPLOAD_PRESET);
+                formData.append('public_id', publicId);
+
+                // Usar el resource_type correcto según el tipo de archivo
+                const ext = file.name.split('.').pop().toLowerCase();
+                const isImage = ['jpg','jpeg','png','gif','webp','svg'].includes(ext);
+                const isVideo = ['mp4','mov','avi','mkv'].includes(ext);
+                const resourceType = isImage ? 'image' : (isVideo ? 'video' : 'raw');
+
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!res.ok) throw new Error('Error al subir a Cloudinary');
+                const data = await res.json();
+                const fileUrl = data.secure_url;
+
+                const sizeStr = file.size < 1024*1024
+                    ? (file.size/1024).toFixed(0) + ' KB'
+                    : (file.size/(1024*1024)).toFixed(1) + ' MB';
+
+                const fileData = {
+                    id: 'file_' + Date.now(),
+                    name: file.name,
+                    size: sizeStr,
+                    url: fileUrl,
+                    folderId: window._selectedFolderId,
+                    uploadedBy: (window._currentUser || {}).name || 'Usuario',
+                    uploadedAt: new Date().toLocaleDateString('es-ES')
+                };
+
+                overlayText.textContent = 'Guardando en base de datos...';
+                await window.saveFileToDB(fileData);
+                overlay.classList.remove('show');
+                alert('✅ "' + file.name + '" subido correctamente.');
+            } catch (err) {
+                overlay.classList.remove('show');
+                console.error(err);
+                alert('❌ Error al subir el archivo. Asegúrate de que el upload preset "perelada_unsigned" está creado en Cloudinary.');
+            }
+        }
+
+        function updateUploadSubText() {
+            const sub = document.getElementById('uploadSubText');
+            const folder = (window._folders || []).find(f => f.id === window._selectedFolderId);
+            sub.textContent = folder ? 'Se guardará en: ' + folder.name : 'Crea una carpeta para empezar';
+        }
+
+        var dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+                handleFileSelect(document.getElementById('fileInput'));
+            }
+        });
+
+        function goTo(page) {
+            const routes = { menu:'index.html', calendario:'calendario.html', notas:'notas.html', tarifas:'tarifas.html', documentos:'documentos.html', ajustes:'ajustes.html', login:'login.html' };
+            if (routes[page]) window.location.href = routes[page];
+        }
+    </script>
+</body>
+</html>
