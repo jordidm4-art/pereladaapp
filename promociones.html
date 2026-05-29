@@ -242,7 +242,7 @@
                 html += '  </div>';
 
                 if (p.fileUrl) {
-                    html += '  <div class="attached-file-badge" onclick="openFile(\'' + p.fileUrl + '\',\'' + (p.fileName || 'archivo') + '\')">';
+                    html += '  <div class="attached-file-badge" onclick="openFileById(' + JSON.stringify(p.id) + ')">';
                     html += getFileIcon(p.fileName) + ' ' + (p.fileName || 'Ver adjunto') + '</div>';
                 }
 
@@ -390,6 +390,11 @@
             if (confirm('¿Eliminar la promoción "' + p.title + '"?')) {
                 window.deletePromoFromDB(id);
             }
+        }
+
+        function openFileById(id) {
+            var p = (window._promos || []).find(item => item.id == id);
+            if (p && p.fileUrl) window.open(p.fileUrl, '_blank');
         }
 
         function openFile(url, name) {
