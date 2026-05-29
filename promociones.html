@@ -314,14 +314,16 @@
                 overlay.classList.add('show');
                 overlayText.textContent = 'Subiendo "' + currentAttachedFile.name + '"...';
                 try {
+                    var safeFileName = currentAttachedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                    var publicId = 'perelada/promociones/' + Date.now() + '_' + safeFileName.replace(/\.[^.]+$/, '');
                     var formData = new FormData();
                     formData.append('file', currentAttachedFile);
                     formData.append('upload_preset', UPLOAD_PRESET);
-                    formData.append('folder', 'perelada/promociones');
+                    formData.append('public_id', publicId);
                     var res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/auto/upload', { method: 'POST', body: formData });
                     if (!res.ok) throw new Error('Error Cloudinary');
                     var data = await res.json();
-                    fileUrl = data.secure_url;
+                    fileUrl = data.secure_url.replace('/upload/', '/upload/fl_attachment/');
                     fileName = currentAttachedFile.name;
                 } catch (err) {
                     overlay.classList.remove('show');
