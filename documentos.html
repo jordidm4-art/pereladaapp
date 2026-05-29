@@ -345,15 +345,20 @@
                 formData.append('upload_preset', UPLOAD_PRESET);
                 formData.append('public_id', publicId);
 
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
+                // Usar el resource_type correcto según el tipo de archivo
+                const ext = file.name.split('.').pop().toLowerCase();
+                const isImage = ['jpg','jpeg','png','gif','webp','svg'].includes(ext);
+                const isVideo = ['mp4','mov','avi','mkv'].includes(ext);
+                const resourceType = isImage ? 'image' : (isVideo ? 'video' : 'raw');
+
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
                     method: 'POST',
                     body: formData
                 });
 
                 if (!res.ok) throw new Error('Error al subir a Cloudinary');
                 const data = await res.json();
-                // fl_attachment para que abra/descargue correctamente en móvil
-                const fileUrl = data.secure_url.replace('/upload/', '/upload/fl_attachment/');
+                const fileUrl = data.secure_url;
 
                 const sizeStr = file.size < 1024*1024
                     ? (file.size/1024).toFixed(0) + ' KB'
