@@ -301,19 +301,30 @@
             }
         }
 
+        function fixCloudinaryUrl(url) {
+            if (!url) return url;
+            url = url.replace('/image/upload/fl_attachment/', '/raw/upload/');
+            url = url.replace('/image/upload/', '/raw/upload/');
+            url = url.replace('/auto/upload/fl_attachment/', '/raw/upload/');
+            url = url.replace('/auto/upload/', '/raw/upload/');
+            url = url.replace('/fl_attachment/', '/');
+            return url;
+        }
+
         function openFile(url, name) {
             if (!url) return;
-            window.open(url, '_blank');
+            window.open(fixCloudinaryUrl(url), '_blank');
         }
 
         function shareFile(url, name) {
             if (!url) { alert('Este archivo no tiene URL disponible.'); return; }
+            var fixedUrl = fixCloudinaryUrl(url);
             if (navigator.share) {
-                navigator.share({ title: name, text: 'Documento Perelada: ' + name, url: url })
+                navigator.share({ title: name, text: 'Documento Perelada: ' + name, url: fixedUrl })
                     .catch(err => console.log(err));
             } else {
-                navigator.clipboard.writeText(url);
-                alert('Enlace copiado al portapapeles:\n' + url);
+                navigator.clipboard.writeText(fixedUrl);
+                alert('Enlace copiado al portapapeles:\n' + fixedUrl);
             }
         }
 
