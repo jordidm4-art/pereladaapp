@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#F06B4E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Perelada">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="perelada_logo_transparent.png">
     <title>Perelada - Menú Principal</title>
     <style>
         * { 
@@ -162,6 +168,41 @@
     <script>
         if (!localStorage.getItem('currentUser')) {
             window.location.href = 'login.html';
+        }
+
+        // Registrar Service Worker (PWA)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/pereladaapp/service-worker.js')
+                .then(reg => {
+                    console.log('SW registrado');
+                    // Pedir permiso de notificaciones si no se ha pedido antes
+                    if (Notification.permission === 'default') {
+                        setTimeout(() => askNotificationPermission(reg), 2000);
+                    } else if (Notification.permission === 'granted') {
+                        setupDailyReminder(reg);
+                    }
+                });
+        }
+
+        function askNotificationPermission(reg) {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    setupDailyReminder(reg);
+                }
+            });
+        }
+
+        function setupDailyReminder(reg) {
+            // Hora guardada o por defecto 8:00
+            const savedHour = parseInt(localStorage.getItem('km_reminder_hour') || '8');
+            const savedMin  = parseInt(localStorage.getItem('km_reminder_min')  || '0');
+            if (reg.active) {
+                reg.active.postMessage({
+                    type: 'SCHEDULE_NOTIFICATION',
+                    hour: savedHour,
+                    minute: savedMin
+                });
+            }
         }
 
         // Mapa completo de todas las páginas disponibles

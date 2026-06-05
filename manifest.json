@@ -1,0 +1,25 @@
+{
+  "name": "Perelada Team Girona",
+  "short_name": "Perelada",
+  "description": "App interna del equipo comercial de Perelada Girona",
+  "start_url": "/pereladaapp/index.html",
+  "scope": "/pereladaapp/",
+  "display": "standalone",
+  "background_color": "#F0F0F0",
+  "theme_color": "#F06B4E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "perelada_logo_transparent.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "perelada_logo_transparent.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
