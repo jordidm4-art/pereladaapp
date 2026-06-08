@@ -251,6 +251,7 @@
             { name: "Danza Kuduro — Don Omar & Lucenzo",   file: "audio/danza_kuduro.mp3" }
         ];
         var currentAudio = null;
+        var currentTrackIndex = -1;
 
         // === MICRÓFONO ===
         function toggleMic() {
@@ -363,6 +364,18 @@
         }
 
         function playTrack(index) {
+            var el = document.getElementById('track_' + index);
+            // Si es la misma canción → toggle pause/play
+            if (currentTrackIndex === index && currentAudio) {
+                if (currentAudio.paused) {
+                    currentAudio.play();
+                    if (el) { el.classList.add('playing'); el.querySelector('.track-icon').textContent = '⏸️'; }
+                } else {
+                    currentAudio.pause();
+                    if (el) { el.classList.remove('playing'); el.querySelector('.track-icon').textContent = '▶️'; }
+                }
+                return;
+            }
             // Parar canción anterior
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
             document.querySelectorAll('.track').forEach(function(t) {
@@ -371,13 +384,14 @@
             });
             var track = tracks[index];
             if (!track) return;
-            var el = document.getElementById('track_' + index);
             currentAudio = new Audio(track.file);
+            currentTrackIndex = index;
             currentAudio.play();
             if (el) { el.classList.add('playing'); el.querySelector('.track-icon').textContent = '⏸️'; }
             currentAudio.onended = function() {
                 if (el) { el.classList.remove('playing'); el.querySelector('.track-icon').textContent = '▶️'; }
                 currentAudio = null;
+                currentTrackIndex = -1;
             };
         }
 

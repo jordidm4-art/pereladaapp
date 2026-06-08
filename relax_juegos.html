@@ -281,19 +281,34 @@
 
         // ===== MÚSICA RELAX =====
         var relaxAudio = null;
+        var relaxCurrentId = null;
         function playRelax(file, id) {
+            var btn = document.getElementById(id);
+            // Toggle si es la misma canción
+            if (relaxCurrentId === id && relaxAudio) {
+                if (relaxAudio.paused) {
+                    relaxAudio.play();
+                    btn.classList.add('playing');
+                    btn.querySelector('span:last-child').textContent = '⏸️';
+                } else {
+                    relaxAudio.pause();
+                    btn.classList.remove('playing');
+                    btn.querySelector('span:last-child').textContent = '▶️';
+                }
+                return;
+            }
+            // Parar anterior
             if (relaxAudio) { relaxAudio.pause(); relaxAudio = null; }
-            document.querySelectorAll('.track-btn').forEach(function(b) { b.classList.remove('playing'); b.querySelector('span:last-child').textContent = '▶️'; });
+            document.querySelectorAll('.track-btn').forEach(function(b) {
+                b.classList.remove('playing');
+                b.querySelector('span:last-child').textContent = '▶️';
+            });
             relaxAudio = new Audio(file);
+            relaxCurrentId = id;
             relaxAudio.loop = true;
             relaxAudio.play();
-            var btn = document.getElementById(id);
             btn.classList.add('playing');
             btn.querySelector('span:last-child').textContent = '⏸️';
-            relaxAudio.onpause = function() {
-                btn.classList.remove('playing');
-                btn.querySelector('span:last-child').textContent = '▶️';
-            };
         }
 
         // ===== POP-IT =====
