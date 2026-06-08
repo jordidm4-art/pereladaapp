@@ -173,6 +173,26 @@
         <button class="destroy-btn" onclick="destroyAndContinue()">💥 Quemar esta Basura y Seguir Adelante 💥</button>
     </div>
 
+    <!-- TRANSICIÓN -->
+    <div class="phase" id="phaseTransition">
+        <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center; gap:24px;">
+            <div style="font-size:56px; animation: bounce 1s ease infinite alternate;">🔥</div>
+            <div style="font-size:22px; font-weight:800; color:#F06B4E;">¡Basura quemada!</div>
+            <div style="font-size:16px; color:#94A3B8; line-height:1.6; max-width:300px;">
+                Esa frustración ya no existe.<br>Ahora toca recuperar el control.
+            </div>
+            <div style="font-size:14px; color:#64748B; font-weight:600; margin-top:8px;">Preparando ejercicio de respiración...</div>
+            <div style="width:40px; height:4px; background:#F06B4E; border-radius:2px; animation:loadBar 2.5s linear forwards;"></div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes loadBar {
+            from { width: 0; }
+            to { width: 280px; }
+        }
+    </style>
+
     <!-- FASE 2: RESPIRACIÓN -->
     <div class="phase" id="phase2">
         <div class="breath-wrapper">
@@ -222,14 +242,15 @@
         var isListening = false;
         var currentAudio = null;
 
-        // Canciones con links de YouTube
+        // Canciones desde carpeta audio/ en GitHub
         var tracks = [
-            { name: "Don't Stop Me Now — Queen",          url: "https://www.youtube.com/watch?v=HgzGwKwLmgM" },
-            { name: "Eye of the Tiger — Survivor",         url: "https://www.youtube.com/watch?v=btPJPFnesV4" },
-            { name: "Happy — Pharrell Williams",           url: "https://www.youtube.com/watch?v=ZbZSe6N_BXs" },
-            { name: "Can't Stop the Feeling — Timberlake", url: "https://www.youtube.com/watch?v=ru0K8uYEZWw" },
-            { name: "Danza Kuduro — Don Omar & Lucenzo",   url: "https://www.youtube.com/watch?v=7zp1TbLFPp8" }
+            { name: "Don't Stop Me Now — Queen",           file: "audio/dont_stop_me_now.mp3" },
+            { name: "Eye of the Tiger — Survivor",         file: "audio/eye_of_the_tiger.mp3" },
+            { name: "Happy — Pharrell Williams",           file: "audio/happy.mp3" },
+            { name: "Can't Stop the Feeling — Timberlake", file: "audio/cant_stop_the_feeling.mp3" },
+            { name: "Danza Kuduro — Don Omar & Lucenzo",   file: "audio/danza_kuduro.mp3" }
         ];
+        var currentAudio = null;
 
         // === MICRÓFONO ===
         function toggleMic() {
@@ -269,9 +290,15 @@
             if (!text) { alert('Primero suelta tus frustraciones — escribe o usa el micrófono.'); return; }
             stopMic();
             document.getElementById('rageText').value = '';
-            switchPhase('phase1', 'phase2');
-            document.body.style.background = '#0F172A';
-            startBreathing();
+            // Mostrar pantalla de transición
+            switchPhase('phase1', 'phaseTransition');
+            document.body.style.background = '#1A1A1A';
+            // Después de 2.5s pasar a respiración
+            setTimeout(function() {
+                switchPhase('phaseTransition', 'phase2');
+                document.body.style.background = '#0F172A';
+                startBreathing();
+            }, 2500);
         }
 
         // === RESPIRACIÓN ===
@@ -280,7 +307,7 @@
             var circle = document.getElementById('breathCircle');
             var counter = document.getElementById('cycleCounter');
             var cycle = 1;
-            var total = 4;
+            var total = 2;
 
             function runCycle() {
                 if (cycle > total) { setTimeout(showSuccess, 800); return; }
@@ -336,22 +363,27 @@
         }
 
         function playTrack(index) {
+            // Parar canción anterior
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            document.querySelectorAll('.track').forEach(function(t) {
+                t.classList.remove('playing');
+                t.querySelector('.track-icon').textContent = '▶️';
+            });
             var track = tracks[index];
             if (!track) return;
-            // Marcar visualmente
-            document.querySelectorAll('.track').forEach(function(t) { t.classList.remove('playing'); });
             var el = document.getElementById('track_' + index);
-            if (el) { el.classList.add('playing'); el.querySelector('.track-icon').textContent = '🎵'; }
-            // Abrir YouTube
-            window.open(track.url, '_blank');
-            // Quitar el marcado después de 3s
-            setTimeout(function() {
+            currentAudio = new Audio(track.file);
+            currentAudio.play();
+            if (el) { el.classList.add('playing'); el.querySelector('.track-icon').textContent = '⏸️'; }
+            currentAudio.onended = function() {
                 if (el) { el.classList.remove('playing'); el.querySelector('.track-icon').textContent = '▶️'; }
-            }, 3000);
+                currentAudio = null;
+            };
         }
 
         // === RESET ===
         function resetAll() {
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
             switchPhase('phase3', 'phase1');
             document.body.style.background = '#1A1A1A';
             document.body.style.color = '#FFFFFF';
