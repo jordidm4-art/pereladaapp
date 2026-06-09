@@ -205,17 +205,17 @@
             
             <div class="form-row">
                 <div class="form-col">
-                    <label class="form-label">Nombre</label>
+                    <label class="form-label">Nombre <span style="color:#F06B4E">*</span></label>
                     <input type="text" id="newName" class="form-input" placeholder="Jordi">
                 </div>
                 <div class="form-col">
-                    <label class="form-label">Apellidos</label>
+                    <label class="form-label">Apellidos <span style="color:#F06B4E">*</span></label>
                     <input type="text" id="newLastName" class="form-input" placeholder="Déu">
                 </div>
             </div>
 
             <div class="form-group" style="margin-top: 12px;">
-                <label class="form-label">Cargo / Puesto</label>
+                <label class="form-label">Cargo / Puesto <span style="color:#F06B4E">*</span></label>
                 <input type="text" id="newRole" class="form-input" placeholder="Comercial Zona Norte">
             </div>
 
@@ -225,7 +225,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Correo electrónico</label>
+                <label class="form-label">Correo electrónico <span style="color:#F06B4E">*</span></label>
                 <input type="email" id="newEmail" class="form-input" placeholder="jordi.deu@perelada.com">
             </div>
 
@@ -235,9 +235,10 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Palabras Clave Ocultas (separadas por comas)</label>
+                <label class="form-label">Palabras Clave <span style="color:#F06B4E">*</span></label>
                 <textarea id="newKeywords" class="form-textarea" placeholder="comercial, girona, escala, monells, jordi, deu, ventas"></textarea>
             </div>
+            <div style="font-size:11px;color:#94A3B8;margin-bottom:8px;">* Campos obligatorios</div>
 
             <div class="modal-footer-btns">
                 <button class="delete-btn" id="btnDeleteContact" onclick="deleteContactFromModal()">🗑️ Borrar</button>
@@ -432,16 +433,17 @@
         }
 
         function saveContact() {
-            var name = document.getElementById("newName").value.trim();
+            var name     = document.getElementById("newName").value.trim();
             var lastname = document.getElementById("newLastName").value.trim();
-            var role = document.getElementById("newRole").value.trim();
-            var phone = document.getElementById("newPhone").value.trim();
-            var email = document.getElementById("newEmail").value.trim();
-            var teams = document.getElementById("newTeams").value.trim() || email;
+            var role     = document.getElementById("newRole").value.trim();
+            var phone    = document.getElementById("newPhone").value.trim();
+            var email    = document.getElementById("newEmail").value.trim();
+            var teams    = document.getElementById("newTeams").value.trim() || email;
             var rawKeywords = document.getElementById("newKeywords").value.trim();
 
-            if (!name || !lastname || !role || !phone || !email) {
-                alert("Por favor, rellene todos los datos principales de la ficha corporativa.");
+            // Solo obligatorios: nombre, apellido, cargo, email, palabras clave
+            if (!name || !lastname || !role || !email || !rawKeywords) {
+                alert("Por favor rellena los campos obligatorios: Nombre, Apellidos, Cargo, Email y Palabras Clave.");
                 return;
             }
 
@@ -463,9 +465,10 @@
                 };
                 if (window.saveContactToDB) window.saveContactToDB(newContact);
             }
+
             document.getElementById("contactModal").classList.remove("show");
             editingContactId = null;
-            renderContacts();
+            // Firebase onValue actualizará la lista automáticamente
         }
 
         // Eliminación rápida desde el botón de la tarjeta
