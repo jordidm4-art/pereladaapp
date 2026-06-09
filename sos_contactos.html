@@ -254,8 +254,43 @@
         <div class="nav-item" onclick="goTo('ajustes')">&#9881;</div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAa3SSatDfkTwEToiu-0eh1z-1JLV-_AVo",
+            authDomain: "perelada-app.firebaseapp.com",
+            projectId: "perelada-app",
+            databaseURL: "https://perelada-app-default-rtdb.europe-west1.firebasedatabase.app",
+            storageBucket: "perelada-app.firebasestorage.app",
+            messagingSenderId: "103007022704",
+            appId: "1:103007022704:web:593a053e5872132d400eb5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const contactsRef = ref(db, 'sos_contactos');
+
+        // Escucha en tiempo real
+        onValue(contactsRef, (snapshot) => {
+            const data = snapshot.val();
+            window.contacts = data ? Object.values(data) : window._defaultContacts;
+            renderContacts();
+        });
+
+        window.saveContactToDB = async function(contact) {
+            await set(ref(db, 'sos_contactos/c_' + contact.id), contact);
+        };
+
+        window.deleteContactFromDB = async function(id) {
+            await remove(ref(db, 'sos_contactos/c_' + id));
+        };
+    </script>
+
     <script>
-        var defaultContacts = [
+        window._defaultContacts = [
             {
                 id: 1, name: "Jordi", lastname: "Déu", role: "Comercial de Cuentas",
                 phone: "600456789", email: "jordi.deu@perelada.com", teams: "jordi.deu@perelada.com",
@@ -268,7 +303,7 @@
             }
         ];
 
-        var contacts = JSON.parse(localStorage.getItem('sos_smart_contacts')) || defaultContacts;
+        window.contacts = [];
         var editingContactId = null;
 
         function renderContacts() {
@@ -278,7 +313,7 @@
 
             var searchWords = phrase.split(/\s+/).filter(w => w.length > 2);
 
-            var filtered = contacts.filter(function(c) {
+            var filtered = (window.contacts || []).filter(function(c) {
                 if (phrase === "") return true;
                 var blockText = (c.name + " " + c.lastname + " " + c.role + " " + (c.keywords ? c.keywords.join(" ") : "")).toLowerCase();
                 return searchWords.some(w => blockText.includes(w)) || blockText.includes(phrase);
@@ -376,7 +411,7 @@
         }
 
         function editContact(id) {
-            var c = contacts.find(item => item.id === id);
+            var c = (window.contacts || []).find(item => item.id === id);
             if (!c) return;
 
             editingContactId = id;
@@ -415,26 +450,19 @@
             if (!keywordsArr.includes(lastname.toLowerCase())) keywordsArr.push(lastname.toLowerCase());
 
             if (editingContactId) {
-                // Modo Edición
-                var c = contacts.find(item => item.id === editingContactId);
+                var c = (window.contacts || []).find(item => item.id === editingContactId);
                 if (c) {
-                    c.name = name;
-                    c.lastname = lastname;
-                    c.role = role;
-                    c.phone = phone;
-                    c.email = email;
-                    c.teams = teams;
-                    c.keywords = keywordsArr;
+                    c.name = name; c.lastname = lastname; c.role = role;
+                    c.phone = phone; c.email = email; c.teams = teams; c.keywords = keywordsArr;
+                    if (window.saveContactToDB) window.saveContactToDB(c);
                 }
             } else {
-                // Modo Creación
-                contacts.push({
+                var newContact = {
                     id: Date.now(), name: name, lastname: lastname, role: role,
                     phone: phone, email: email, teams: teams, keywords: keywordsArr
-                });
+                };
+                if (window.saveContactToDB) window.saveContactToDB(newContact);
             }
-
-            localStorage.setItem('sos_smart_contacts', JSON.stringify(contacts));
             document.getElementById("contactModal").classList.remove("show");
             editingContactId = null;
             renderContacts();
@@ -442,10 +470,8 @@
 
         // Eliminación rápida desde el botón de la tarjeta
         function quickDeleteContact(id) {
-            if (confirm("¿Señor, está seguro de que desea eliminar este contacto de forma permanente?")) {
-                contacts = contacts.filter(item => item.id !== id);
-                localStorage.setItem('sos_smart_contacts', JSON.stringify(contacts));
-                renderContacts();
+            if (confirm("¿Estás seguro de que deseas eliminar este contacto?")) {
+                if (window.deleteContactFromDB) window.deleteContactFromDB(id);
             }
         }
 
@@ -477,7 +503,7 @@
             if (routes[page]) window.location.href = routes[page];
         }
 
-        renderContacts();
+        // Firebase onValue dispara renderContacts automáticamente al cargar
     </script>
 </body>
 </html>
